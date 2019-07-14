@@ -1,6 +1,6 @@
 import pandas as pd 
 
-df = pd.read_csv('articles_2019.csv')
+df = pd.read_csv('data/articles_2019.csv')
 
 #remove rows based on nan (these columns must have values, otherwise remove the row)
 df = df.dropna(subset=['byline_original'])
