@@ -12,7 +12,7 @@ def make_many_year_dfs(num_of_years):
 
     articles_all_years_df = make_year_df(2019)
 
-    for i in range(num_of_years):
+    for i in range(1, num_of_years):
         filename = str('articles_' + str(2019 - i) + '.csv')
         articles_year_df = make_year_df(2019 - i)
         articles_year_df.to_csv(filename)
