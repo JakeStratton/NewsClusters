@@ -12,7 +12,7 @@ def make_year_df(year):
     articles_year_df = pd.DataFrame()
     for i in range(1,13):
         month_df = get_article_month_year(i, year)
-        articles_year_df = articles_2018_df.append(month_df, ignore_index=True)
+        articles_year_df = articles_year_df.append(month_df, ignore_index=True)
     
     # save csv file from dataframe
     filename = 'articles_' + str(year) + '.csv'
