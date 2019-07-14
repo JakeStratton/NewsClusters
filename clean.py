@@ -247,7 +247,6 @@ columns = ['byline_original', 'multimedia_0_caption',
  'print_page',
  'Unnamed: 0'
  ]
-
 for col in columns:
     df = df.drop(col, axis=1)
 
