@@ -1,52 +1,171 @@
-import requests
-from bs4 import BeautifulSoup
 import pandas as pd 
-import re
-import ast
-import time 
-from datetime import datetime
-import json
-from pandas.io.json import json_normalize
-from flatten_json import flatten
 
-#get month's archive from nytimes api, and save as json file
-request = requests.get('https://api.nytimes.com/svc/archive/v1/2019/1.json?api-key=X4hi44ftAA1fmfGpOI6rJhLAGHSG4zOm')
-data = request.json()
-with open('data.json', 'w') as f:
-    json.dump(data, f)
+df = pd.read_csv('articles_2019.csv')
 
-#get data from json file to dictionary
-with open('data.json') as json_file:      
-    data = json_file.readlines()
-    # this line below may take a while. It converts all strings in list to actual json objects. 
-    data = list(map(json.loads, data)) 
+#remove unneeded columns
+columns = ['multimedia_0_caption',
+ 'multimedia_0_credit',
+ 'multimedia_0_crop_name',
+ 'multimedia_0_height',
+ 'multimedia_0_legacy_xlarge',
+ 'multimedia_0_legacy_xlargeheight',
+ 'multimedia_0_legacy_xlargewidth',
+ 'multimedia_0_rank',
+ 'multimedia_0_subType',
+ 'multimedia_0_subtype',
+ 'multimedia_0_type',
+ 'multimedia_0_url',
+ 'multimedia_0_width',
+ 'multimedia_1_caption',
+ 'multimedia_1_credit',
+ 'multimedia_1_crop_name',
+ 'multimedia_1_height',
+ 'multimedia_1_legacy_thumbnail',
+ 'multimedia_1_legacy_thumbnailheight',
+ 'multimedia_1_legacy_thumbnailwidth',
+ 'multimedia_1_rank',
+ 'multimedia_1_subType',
+ 'multimedia_1_subtype',
+ 'multimedia_1_type',
+ 'multimedia_1_url',
+ 'multimedia_1_width',
+ 'multimedia_2_caption',
+ 'multimedia_2_credit',
+ 'multimedia_2_crop_name',
+ 'multimedia_2_height',
+ 'multimedia_2_rank',
+ 'multimedia_2_subType',
+ 'multimedia_2_subtype',
+ 'multimedia_2_type',
+ 'multimedia_2_url',
+ 'multimedia_2_width',
+ 'multimedia_3_caption',
+ 'multimedia_3_credit',
+ 'multimedia_3_crop_name',
+ 'multimedia_3_height',
+ 'multimedia_3_rank',
+ 'multimedia_3_subType',
+ 'multimedia_3_subtype',
+ 'multimedia_3_type',
+ 'multimedia_3_url',
+ 'multimedia_3_width',
+ 'multimedia_4_caption',
+ 'multimedia_4_credit',
+ 'multimedia_4_crop_name',
+ 'multimedia_4_height',
+ 'multimedia_4_rank',
+ 'multimedia_4_subType',
+ 'multimedia_4_subtype',
+ 'multimedia_4_type',
+ 'multimedia_4_url',
+ 'byline_organization',
+ 'byline_person',
+ 'byline_person_0_middlename',
+ 'byline_person_0_organization',
+ 'byline_person_0_qualifier',
+ 'byline_person_0_rank',
+ 'byline_person_0_title',
+ 'byline_person_1_middlename',
+ 'byline_person_1_organization',
+ 'byline_person_1_qualifier',
+ 'byline_person_1_rank',
+ 'byline_person_1_title',
+ 'byline_person_2_middlename',
+ 'byline_person_2_organization',
+ 'byline_person_2_qualifier',
+ 'byline_person_2_rank',
+ 'byline_person_2_title',
+ 'byline_person_3_middlename',
+ 'byline_person_3_organization',
+ 'byline_person_3_qualifier',
+ 'byline_person_3_rank',
+ 'byline_person_3_title',
+ 'byline_person_4_middlename',
+ 'byline_person_4_organization',
+ 'byline_person_4_qualifier',
+ 'byline_person_4_rank',
+ 'byline_person_4_title',
+ 'byline_person_5_middlename',
+ 'byline_person_5_organization',
+ 'byline_person_5_qualifier',
+ 'byline_person_5_rank',
+ 'byline_person_5_title',
+ 'byline_person_6_middlename',
+ 'byline_person_6_organization',
+ 'byline_person_6_qualifier',
+ 'byline_person_6_rank',
+ 'byline_person_6_title',
+ 'keywords_0_major',
+ 'keywords_0_rank',
+ 'keywords_10_major',
+ 'keywords_10_rank',
+ 'keywords_11_major',
+ 'keywords_11_rank',
+ 'keywords_12_major',
+ 'keywords_12_rank',
+ 'keywords_13_major',
+ 'keywords_13_rank',
+ 'keywords_14_major',
+ 'keywords_14_rank',
+ 'keywords_15_major',
+ 'keywords_15_rank',
+ 'keywords_16_major',
+ 'keywords_16_rank',
+ 'keywords_17_major',
+ 'keywords_17_rank',
+ 'keywords_18_major',
+ 'keywords_18_rank',
+ 'keywords_19_major',
+ 'keywords_19_rank',
+ 'keywords_1_major',
+ 'keywords_1_rank',
+ 'keywords_20_major',
+ 'keywords_20_rank',
+ 'keywords_21_major',
+ 'keywords_21_rank',
+ 'keywords_22_major',
+ 'keywords_22_rank',
+ 'keywords_23_major',
+ 'keywords_23_rank',
+ 'keywords_24_major',
+ 'keywords_24_rank',
+ 'keywords_25_major',
+ 'keywords_25_rank',
+ 'keywords_26_major',
+ 'keywords_26_rank',
+ 'keywords_27_major',
+ 'keywords_27_rank',
+ 'keywords_28_major',
+ 'keywords_28_rank',
+ 'keywords_2_major',
+ 'keywords_2_rank',
+ 'keywords_3_major',
+ 'keywords_3_rank',
+ 'keywords_4_major',
+ 'keywords_4_rank',
+ 'keywords_5_major',
+ 'keywords_5_rank',
+ 'keywords_6_major',
+ 'keywords_6_rank',
+ 'keywords_7_major',
+ 'keywords_7_rank',
+ 'keywords_8_major',
+ 'keywords_8_rank',
+ 'keywords_9_major',
+ 'keywords_9_rank',
+ 'document_type',
+ 'headline_content_kicker',
+ 'headline_kicker',
+ 'headline_name',
+ 'headline_sub',
+ 'headline_seo',
+ 'headline_print_headline',
+ 'multimedia_4_width',
+ 'slideshow_credits',
+ 'score']
 
-#create staging dataframe for next step
-df = pd.DataFrame(data)
+df2 = df.dropna(subset=['byline_original'])  
 
-# create empty dataframe for all month's articles
-articles_all_df = pd.DataFrame()  
-
-#loop through each article
-for i in range(len(df['response'][0]['docs'])):  # df['response'][0]['docs'] is the location to dig in to get to the article dictionary level
-    try:
-        article_dic = (df['response'][0]['docs'][i])
-        article_dic_flat = flatten(article_dic)
-
-        #next four lines of code are to remove keys that are making df creation error out
-        article_dic_flat.pop('blog', None)
-        article_dic_flat.pop('multimedia_2_legacy', None)
-        article_dic_flat.pop('multimedia_3_legacy', None)
-        article_dic_flat.pop('multimedia_4_legacy', None)
-
-        print((len(df['response'][0]['docs'])) - i)
-
-        #create dataframe from flattened and cleaned article dictionary
-        article_df = pd.DataFrame(article_dic_flat, index=[0])
-        
-        #append article df to all articles df 
-        articles_all_df = articles_all_df.append(article_df, ignore_index=True)
-    
-    except:
-        None
+for col in columns:
+    df = df.drop(col, axis=1) 
 

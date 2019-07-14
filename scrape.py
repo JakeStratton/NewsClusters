@@ -6,6 +6,10 @@ from datetime import datetime
 import json
 from flatten_json import flatten
 
+def main():
+    make_many_year_dfs(20)
+    return None
+
 
 def make_many_year_dfs(num_of_years):
     '''returns a dataframe of all articles each month going back the specified number of years'''
@@ -103,3 +107,6 @@ def get_article_month_year(month, year):
 
     return articles_all_df
 
+
+if __name__== "__main__":
+  main()
