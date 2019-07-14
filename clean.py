@@ -195,6 +195,25 @@ columns = ['multimedia_0_caption',
  'keywords_26_name',
  'keywords_27_name',
  'keywords_28_name',
+ 'keywords_10_value',
+ 'keywords_11_value',
+ 'keywords_12_value',
+ 'keywords_13_value',
+ 'keywords_14_value',
+ 'keywords_15_value',
+ 'keywords_16_value',
+ 'keywords_17_value',
+ 'keywords_18_value',
+ 'keywords_19_value',
+ 'keywords_20_value',
+ 'keywords_21_value',
+ 'keywords_22_value',
+ 'keywords_23_value',
+ 'keywords_24_value',
+ 'keywords_25_value',
+ 'keywords_26_value',
+ 'keywords_27_value',
+ 'keywords_28_value',
  'document_type',
  'headline_content_kicker',
  'headline_kicker',
@@ -233,5 +252,6 @@ columns = ['multimedia_0_caption',
 for col in columns:
     df = df.drop(col, axis=1)
 
-
+# fill missing subsection with section
+df['subsectoinName'].fillna(df['section_name'], inplace=True)
 
