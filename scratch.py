@@ -27,7 +27,8 @@ df = pd.DataFrame(data)
 # create empty dataframe for all month's articles
 articles_all_df = pd.DataFrame()  
 
-for i in range(len(df['response'][0]['docs'])): # -1 here?  try if it doesnt work.  for loop through staging 
+#loop through each article
+for i in range(len(df['response'][0]['docs'])):  # df['response'][0]['docs'] is the location to dig in to get to the article dictionary level
     try:
         article_dic = (df['response'][0]['docs'][i])
         article_dic_flat = flatten(article_dic)
@@ -38,7 +39,7 @@ for i in range(len(df['response'][0]['docs'])): # -1 here?  try if it doesnt wor
         article_dic_flat.pop('multimedia_3_legacy', None)
         article_dic_flat.pop('multimedia_4_legacy', None)
 
-        print(i)
+        print((len(df['response'][0]['docs'])) - i)
 
         #create dataframe from flattened and cleaned article dictionary
         article_df = pd.DataFrame(article_dic_flat, index=[0])
