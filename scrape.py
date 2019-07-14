@@ -13,9 +13,13 @@ def make_many_year_dfs(num_of_years):
     articles_all_years_df = make_year_df(2019)
 
     for i in range(num_of_years):
+        filename = str('articles_' + str(2019 - i) + '.csv')
         articles_year_df = make_year_df(2019 - i)
+        articles_year_df.to_csv(filename)
         articles_all_years_df = articles_all_years_df.append(articles_year_df, ignore_index=True)
-        articles_all_years_df.to_csv(filename)
+    
+    filename = str('articles_going_back_' + str(num_of_years) + '_years.csv')
+    articles_all_years_df.to_csv(filename)
 
     return articles_all_years_df
 
@@ -25,13 +29,13 @@ def make_year_df(year):
     articles_year_df = pd.DataFrame()
 
     if year == 2019:
-        # hard code month of 2019 to start in, will change this in final tweaks
-        for i in range(1,7):
+        # hard code month of 2019 in for now in the end of first for loop range, will change this in final tweaks
+        for i in range(1,2):
             month_df = get_article_month_year(i, year)
             articles_year_df = articles_year_df.append(month_df, ignore_index=True)
         
         # save csv file from dataframe
-        filename = 'articles_' + str(year) + '.csv'
+        filename = str('articles_' + str(year) + '.csv')
         articles_year_df.to_csv(filename)
         
         return articles_year_df
@@ -42,7 +46,7 @@ def make_year_df(year):
             articles_year_df = articles_year_df.append(month_df, ignore_index=True)
         
         # save csv file from dataframe
-        filename = 'articles_' + str(year) + '.csv'
+        filename = str('articles_' + str(year) + '.csv')
         articles_year_df.to_csv(filename)
         
         return articles_year_df
