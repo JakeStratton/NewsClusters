@@ -73,7 +73,6 @@ columns = ['byline_original', 'multimedia_0_caption',
  'multimedia_4_url',
  'byline_organization',
  'byline_person',
- 'byline_person_0_middlename',
  'byline_person_0_organization',
  'byline_person_0_qualifier',
  'byline_person_0_rank',
@@ -254,4 +253,13 @@ for col in columns:
 
 # fill missing subsection with section
 df['subsectoinName'].fillna(df['section_name'], inplace=True)
+df = df.reset_index()
 
+# use first, middel, and last names to create an author column
+df['byline_person_0_middlename'].fillna('None', inplace=True)
+df = df.reset_index()
+df['author'] = df[['byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname']].apply(lambda x: ' '.join(x), axis=1)
+df['author'] = df['author'].map(lambda x: x.replace(' None ', ' ').title())
+
+#fill all remaining nan values - only additional keywords are missing values at this point
+df = df.fillna('None')
