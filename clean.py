@@ -16,7 +16,7 @@ delete_cols = df[df['byline_person_1_lastname'].notnull() == True].index
 df.drop(delete_cols , inplace=True)
 
 #remove unneeded columns
-columns = ['multimedia_0_caption',
+columns = ['byline_original', 'multimedia_0_caption',
  'multimedia_0_credit',
  'multimedia_0_crop_name',
  'multimedia_0_height',
