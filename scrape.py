@@ -8,16 +8,25 @@ from flatten_json import flatten
 
 
 def make_many_year_dfs(num_of_years):
-    years = []
-    make_year_df(2019)
+    '''returns a dataframe of all articles each month going back the specified number of years'''
+
+    articles_all_years_df = make_year_df(2019)
+
     for i in range(num_of_years):
-        make_year_df(2019 - i)
+        articles_year_df = make_year_df(2019 - i)
+        articles_all_years_df = articles_all_years_df.append(articles_year_df, ignore_index=True)
+        articles_all_years_df.to_csv(filename)
+
+    return articles_all_years_df
 
 def make_year_df(year):
     '''returns a dataframe of the year, and creates a csv.'''
+
     articles_year_df = pd.DataFrame()
+
     if year == 2019:
-        for i in range(1,7) # hard code month of 2019 to start in, will change this in final tweaks
+        # hard code month of 2019 to start in, will change this in final tweaks
+        for i in range(1,7):
             month_df = get_article_month_year(i, year)
             articles_year_df = articles_year_df.append(month_df, ignore_index=True)
         
@@ -26,7 +35,7 @@ def make_year_df(year):
         articles_year_df.to_csv(filename)
         
         return articles_year_df
-        
+
     else:
         for i in range(1,13):
             month_df = get_article_month_year(i, year)
