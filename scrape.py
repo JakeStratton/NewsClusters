@@ -90,7 +90,7 @@ def get_article_month_year(month, year):
             article_dic_flat.pop('multimedia_3_legacy', None)
             article_dic_flat.pop('multimedia_4_legacy', None)
 
-            print((len(df['response'][0]['docs'])) - i)
+            print(((len(df['response'][0]['docs'])) - i), month, year)
 
             #create dataframe from flattened and cleaned article dictionary
             article_df = pd.DataFrame(article_dic_flat, index=[0])
