@@ -30,7 +30,7 @@ def make_year_df(year):
 
     if year == 2019:
         # hard code month of 2019 in for now in the end of first for loop range, will change this in final tweaks
-        for i in range(1,2):
+        for i in range(1,7):
             month_df = get_article_month_year(i, year)
             articles_year_df = articles_year_df.append(month_df, ignore_index=True)
         
