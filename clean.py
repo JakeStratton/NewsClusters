@@ -2,6 +2,19 @@ import pandas as pd
 
 df = pd.read_csv('articles_2019.csv')
 
+#remove rows based on nan (these columns must have values, otherwise remove the row)
+df = df.dropna(subset=['byline_original'])
+df = df.dropna(subset=['headline_main']) 
+df = df.dropna(subset=['byline_person_0_lastname'])
+df = df.dropna(subset=['lead_paragraph'])
+
+#rows to delete based on conditions
+delete_cols = df[df['type_of_material'] == 'Video'].index
+df.drop(delete_cols , inplace=True)
+
+delete_cols = df[df['byline_person_1_lastname'].notnull() == True].index
+df.drop(delete_cols , inplace=True)
+
 #remove unneeded columns
 columns = ['multimedia_0_caption',
  'multimedia_0_credit',
@@ -213,20 +226,12 @@ columns = ['multimedia_0_caption',
  'byline_person_6_firstname',
  'byline_person_6_lastname',
  'uri',
- 'print_page'
+ 'print_page',
+ 'Unnamed: 0'
  ]
-
-df = df.dropna(subset=['byline_original'])
-df = df.dropna(subset=['headline_main']) 
-df = df.dropna(subset=['byline_person_0_lastname'])
-df = df.dropna(subset=['lead_paragraph'])
-
-#rows to delete
-delete_cols = df[df['type_of_material'] == 'Video'].index
-df.drop(delete_cols , inplace=True)
-
-delete_cols = df[df['byline_person_1_lastname'].notnull() == True].index
-df.drop(delete_cols , inplace=True)
 
 for col in columns:
     df = df.drop(col, axis=1)
+
+
+
