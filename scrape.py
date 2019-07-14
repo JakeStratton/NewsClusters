@@ -1,13 +1,24 @@
 import requests
-from bs4 import BeautifulSoup
 import pandas as pd 
-import re
 import ast
 import time 
 from datetime import datetime
 import json
-from pandas.io.json import json_normalize
 from flatten_json import flatten
+
+
+def make_year_df(year):
+    '''returns a dataframe of the year, and creates a csv.'''
+    articles_year_df = pd.DataFrame()
+    for i in range(1,13):
+        month_df = get_article_month_year(i, year)
+        articles_year_df = articles_2018_df.append(month_df, ignore_index=True)
+    
+    # save csv file from dataframe
+    filename = 'articles_' + str(year) + '.csv'
+    articles_year_df.to_csv(filename)
+    
+    return articles_year_df
 
 
 def get_article_month_year(month, year):
