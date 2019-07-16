@@ -4,7 +4,7 @@ import json
 from flatten_json import flatten
 
 def main():
-    make_many_year_dfs(20)
+    make_many_year_dfs(10)
     return None
 
 
@@ -12,6 +12,8 @@ def make_many_year_dfs(num_of_years):
     '''returns a dataframe of all articles each month going back the specified number of years'''
 
     articles_all_years_df = make_year_df(2019)
+    filename = str('data/articles_' + str(2019 - i) + '.csv')
+    articles_all_years_df.to_csv(filename)
 
     for i in range(1, num_of_years):
         filename = str('data/articles_' + str(2019 - i) + '.csv')
