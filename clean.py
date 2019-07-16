@@ -2,11 +2,14 @@ import pandas as pd
 
 df = pd.read_csv('data/articles_2019.csv')
 
+
+###First clean
+
 #remove rows based on nan (these columns must have values, otherwise remove the row)
 df = df.dropna(subset=['byline_original'])
 df = df.dropna(subset=['headline_main']) 
 df = df.dropna(subset=['byline_person_0_lastname'])
-df = df.dropna(subset=['lead_paragraph'])
+df = df.dropna(subset=['snippet'])
 
 #rows to delete based on conditions
 delete_cols = df[df['type_of_material'] == 'Video'].index
@@ -16,7 +19,27 @@ delete_cols = df[df['byline_person_1_lastname'].notnull() == True].index
 df.drop(delete_cols , inplace=True)
 
 #remove unneeded columns
-columns = ['byline_original', 'multimedia_0_caption',
+cols_to_keep = ['_id',
+ 'byline_organization',
+ 'byline_person_0_firstname',
+ 'byline_person_0_lastname',
+ 'byline_person_0_middlename',
+ 'headline_main',
+ 'keywords_0_value',
+ 'keywords_1_value',
+ 'keywords_2_value',
+ 'pub_date',
+ 'section_name',
+ 'snippet',
+ 'source',
+ 'type_of_material',
+ 'web_url',
+ 'word_count'
+ ]
+df = df[cols_to_keep]
+
+'''
+columns = ['source', 'byline_original', 'multimedia_0_caption',
  'multimedia_0_credit',
  'multimedia_0_crop_name',
  'multimedia_0_height',
@@ -230,7 +253,6 @@ columns = ['byline_original', 'multimedia_0_caption',
  'byline_person_4_role',
  'byline_person_5_role',
  'byline_person_6_role',
- 'snippet',
  'byline_person_1_firstname',
  'byline_person_1_lastname',
  'byline_person_2_firstname',
@@ -249,9 +271,12 @@ columns = ['byline_original', 'multimedia_0_caption',
  ]
 for col in columns:
     df = df.drop(col, axis=1)
-
+'''
+'''
 # fill missing subsection with section
 df['subsectoinName'].fillna(df['section_name'], inplace=True)
+'''
+
 df = df.reset_index()
 
 # use first, middel, and last names to create an author column
@@ -262,3 +287,14 @@ df['author'] = df['author'].map(lambda x: x.replace(' None ', ' ').title())
 
 #fill all remaining nan values - only additional keywords are missing values at this point
 df = df.fillna('None')
+
+
+###Preprocesing
+
+#convert headline and leads to list of a string
+df['text'] = df['headline_main'] + '... ' + df['snippet']
+df['snippet'] = df['snippet'].map(lambda x: [x])
+df['headline_main'] = df['headline_main'].map(lambda x: [x])
+df['text'] = df['text'].map(lambda x: [x])
+
+
