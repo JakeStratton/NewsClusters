@@ -53,8 +53,8 @@ def clean(df):
     'web_url',
     'word_count'
     ]
-    df = df[cols_to_keep]
 
+    df = df[cols_to_keep]
     df = df.reset_index()
 
     # use first, middel, and last names to create an author column
