@@ -1,0 +1,3 @@
+sudo -u postgres createuser -D -A -P jake
+sudo -u postgres createdb -O pythonspot newsclusters
+sudo /etc/init.d/postgresql reload
