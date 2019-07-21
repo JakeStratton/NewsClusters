@@ -1,20 +1,15 @@
 import pandas as pd 
 
+'''
+
+to add in the future:
+  progress bar
+
+'''
+
 def main():
-  #df = combine()
+  df = pd.read_csv('data/articles_2014-2018.csv')
   df = clean(df)
-
-  return df
-
-
-def combine():
-  df1 = pd.read_csv('data/articles_2018.csv')
-  df2 = pd.read_csv('data/articles_2017.csv')
-  df3 = pd.read_csv('data/articles_2016.csv')
-  df4 = pd.read_csv('data/articles_2015.csv')
-  df5 = pd.read_csv('data/articles_2014.csv')
-  df = pd.concat([df1, df2, df3, df4, df5])
-  df.to_csv('data/articles_2014-2018.csv')
 
   return df
 
@@ -140,6 +135,10 @@ def clean(df):
   #remove junk columns
   df = df.drop('index', axis=1)
   df = df.drop('level_0', axis=1)
+
+  #save result as csv and pkl (not sure which is best right now, need to come back and choose)
+  df.to_csv('data/articles_2014-2018_clean.csv')
+  df.to_pickle('data/articles_2014-2018_clean.pkl')
 
   return df
 
