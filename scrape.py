@@ -4,7 +4,9 @@ import json
 from flatten_json import flatten
 
 def main():
-    make_many_year_dfs(10)
+    make_many_year_dfs(5)
+    combine()
+    
     return None
 
 
@@ -105,6 +107,17 @@ def get_article_month_year(month, year):
             None
 
     return articles_all_df
+
+def combine():
+    df1 = pd.read_csv('data/articles_2018.csv')
+    df2 = pd.read_csv('data/articles_2017.csv')
+    df3 = pd.read_csv('data/articles_2016.csv')
+    df4 = pd.read_csv('data/articles_2015.csv')
+    df5 = pd.read_csv('data/articles_2014.csv')
+    df = pd.concat([df1, df2, df3, df4, df5])
+    df.to_csv('data/articles_2014-2018.csv')
+
+    return None
 
 
 if __name__== "__main__":
