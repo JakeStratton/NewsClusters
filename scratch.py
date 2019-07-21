@@ -82,3 +82,8 @@ $scp -i ~/Desktop/amazon.pem ubuntu@ec2-54-166-128-20.compute-1.amazonaws.com:/d
   scp -i NewsClusters.pem ec2-user@ec2-52-202-226-218.compute-1.amazonaws.com:/home/ec2-user/NewsClusters/articles_2018.csv ~/data_science/NewsClusters/data/articles_2018.csv
 
 
+
+df3 = df.groupby('_id').filter(lambda g: len(g) > 1).groupby(['A', 'B']).head(1)
+print(result)
+
+duplicate_rows = df[df.duplicated(['text', 'author'])]
