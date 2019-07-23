@@ -31,8 +31,6 @@ class Article(Base):
 
     article_id = Column(String(), primary_key=True)
     headline_main = Column(String())
-    author = Column(String())
-    author_id = Column(String())
     pub_date = Column(String())
     section_name = Column(String())
     source = Column(String())
@@ -48,7 +46,9 @@ class Article(Base):
     keywords_2_value= Column(String())
     byline_person_0_middlename= Column(String())
     keywords_0_value= Column(String())
+    
     author = Column(String())
+    author_id = Column(String())
 
     '''
     author_id = Column(String, ForeignKey("authors.author_id"))
