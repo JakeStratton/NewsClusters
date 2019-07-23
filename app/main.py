@@ -25,11 +25,21 @@ def search_results(search):
     search_string = search.data['search']
 
     if search_string:
+
+        if search.data['select'] == 'author':
+            qry = db_session.query(Article).filter(
+                Article.author.contains(search_string))
+            results = qry.all() 
+
+            #add this back after populating authors table
+            '''  
         if search.data['select'] == 'author':
             qry = db_session.query(Article, Author).filter(
                 Author.author_id==Article.author_id).filter(
                     Author.author.contains(search_string))
-            results = [item[0] for item in qry.all()]
+            results = [item[0] for item in qry.all()] 
+            '''
+            
         elif search.data['select'] == 'headline_main':
             qry = db_session.query(Article).filter(
                 Article.headline_main.contains(search_string))

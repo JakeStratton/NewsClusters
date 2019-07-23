@@ -33,7 +33,8 @@ class Article(db.Model):
     author = db.Column(db.String)
     author_id = db.Column(db.String)
 
-    '''
+    #add this back after populating authors table
+    '''   
     author_id = db.Column(db.String, db.ForeignKey("authors.author_id"))
     author = db.relationship("Author", backref=db.backref(
         "articles", order_by=article_id), lazy=True)  #this might need to be changed to author_id

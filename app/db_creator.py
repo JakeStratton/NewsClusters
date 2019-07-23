@@ -50,6 +50,7 @@ class Article(Base):
     author = Column(String())
     author_id = Column(String())
 
+    #add this back after populating authors table
     '''
     author_id = Column(String, ForeignKey("authors.author_id"))
     author = relationship("Author", backref=backref(
