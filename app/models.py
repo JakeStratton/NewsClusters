@@ -31,9 +31,11 @@ class Article(db.Model):
     byline_person_0_lastname = db.Column(db.String)
     author = db.Column(db.String)
 
+    '''
     author_id = db.Column(db.String, db.ForeignKey("authors.author_id"))
-    #author = db.relationship("Author", backref=db.backref(
-    #    "articles", order_by=article_id), lazy=True)  #this might need to be changed to author_id
+    author = db.relationship("Author", backref=db.backref(
+        "articles", order_by=article_id), lazy=True)  #this might need to be changed to author_id
+    '''
 
     def __init__(self, headline_main, pub_date, source, type_of_material, web_url):
         """"""
