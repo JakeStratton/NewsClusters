@@ -50,11 +50,11 @@ class Article(Base):
     keywords_0_value= Column(String())
     author = Column(String())
 
-'''
+    '''
     author_id = Column(String, ForeignKey("authors.author_id"))
     author = relationship("Author", backref=backref(
         "articles", order_by=article_id)) #this might need to be changed to author_id
-'''
+    '''
 
     def __init__(self, headline_main, pub_date, source, type_of_material, web_url):
         """"""
