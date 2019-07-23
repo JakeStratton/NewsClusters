@@ -29,6 +29,7 @@ class Article(db.Model):
     source = db.Column(db.String)
     type_of_material = db.Column(db.String)
     byline_person_0_lastname = db.Column(db.String)
+    web_url = db.Column(db.String)
 
     author = db.Column(db.String)
     author_id = db.Column(db.String)
