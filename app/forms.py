@@ -1,9 +1,10 @@
 # forms.py
  
-from wtforms import Form, StringField, SelectField
+from wtforms import Form, StringField, SelectField, validators
  
 class ReporterSearchForm(Form):
-    choices = [('author', 'Reporter Name'),
-               ('text', 'Text')]
-    select = SelectField('Search for reporters:', choices=choices)
+    choices = [('Author', 'Reporter Name'),
+               ('source', 'Source'),
+               ('headline_main', 'Headline')]
+    select = SelectField('Search for Reporters Using:', choices=choices)
     search = StringField('')
