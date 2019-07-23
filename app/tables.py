@@ -5,4 +5,3 @@ class Results(Table):
     author = Col('Author')
     headline_main = Col('Headline')
     pub_date = Col('Publication Date')
-    byline_person_0_lastname = Col('Last Name')
