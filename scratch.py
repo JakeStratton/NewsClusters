@@ -1,22 +1,44 @@
+#gensim
 import gensim 
 from gensim.utils import simple_preprocess 
-from gensim.parsing.preprocessing import STOPWORDS 
+from gensim.parsing.preprocessing import STOPWORDS
+from gensim.utils import simple_preprocess
+import gensim.corpora as corpora
+from gensim.models import CoherenceModel
+
+# Plotting tools
+import pyLDAvis
+import pyLDAvis.gensim  
+import matplotlib.pyplot as plt
+
+#nltk
 from nltk.stem import WordNetLemmatizer, SnowballStemmer 
 from nltk.stem.porter import * 
+nltk.download('wordnet') 
+
+#other
 import numpy as np 
 import nltk
-# nltk.download('wordnet')
+import pandas as pd
+import re
 
+
+
+#load data
+df = pd.read_csv('data/articles_2014-2018_clean.csv')
+
+#turn text column back in to list (pandas load is making it a string)
+df['text'] = df['text'].str.replace('[','').str.replace(']', '')
+df['text'] = df['text'].map(lambda x: [x])
 
 def main():
-    #processed_docs = process_text(df['text'])
+    processed_docs = process_text(df['text'])
     #dictionary = gensim.corpora.Dictionary(processed_docs)
     #bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
     return None
 
 
 ## Data Preprocessing
-
 # Tokenize and lemmatize and stem functions
 
 def lemmatize_stemming(text): 
@@ -31,7 +53,6 @@ def preprocess(text):
     return result 
 
 
-
 # process text
 
 def process_text(column):
@@ -40,7 +61,7 @@ def process_text(column):
         for doc in column[i]:
             processed_docs.append(preprocess(doc))
     
-    dictionary = gensim.corpora.Dictionary(processed_docs)
+    #dictionary = gensim.corpora.Dictionary(processed_docs)
     
     return processed_docs
 
@@ -48,26 +69,35 @@ def process_text(column):
 ##Bag of words on the dataset
 
 #Create a dictionary from 'processed_docs' containing the number of times a word appears 
-#in the training set using gensim.corpora.Dictionary and call it 'dictionary'
+#in the training set using gensim.corpora
+#filter out extreme words
 
 dictionary = gensim.corpora.Dictionary(processed_docs)
+dictionary.filter_extremes(no_below=15, no_above=0.1, keep_n= 100000)
+
+#Create the Bag-of-words model for each document i.e for each document
 bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
 
-'''
-OPTIONAL STEP
-Remove very rare and very common words -
-the below would filter:
-- words appearing less than 15 times
-- words appearing in more than 10% of all documents
 
-dictionary.filter_extremes(no_below=15, no_above=0.1, keep_n= 100000)
-'''
+#Use this function to show the words in the corpus and how many times they occur in a given document
+def show_words(doc_num):
+  bow_doc = bow_corpus[doc_num]
+  for i in range(len(bow_doc)):
+      print("Word {} (\"{}\") appears {} time.".format(bow_doc[i][0], 
+                                                dictionary[bow_doc[i][0]], 
+  bow_doc[i][1]))
 
-#Create the Bag-of-words model for each document i.e for each document we create a dictionary reporting how many
-#words and how many times those words appear. Save this to 'bow_corpus'
 
-#bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
-
+# Build LDA model
+lda_model = gensim.models.ldamodel.LdaModel(corpus=bow_corpus,
+                                           id2word=dictionary,
+                                           num_topics=20, 
+                                           random_state=100,
+                                           update_every=1,
+                                           chunksize=100,
+                                           passes=10,
+                                           alpha='auto',
+                                           per_word_topics=True)
 
 
 
@@ -75,8 +105,5 @@ dictionary.filter_extremes(no_below=15, no_above=0.1, keep_n= 100000)
 if __name__== "__main__":
   main()
 
-
-
-  scp -i NewsClusters.pem ec2-user@ec2-52-202-226-218.compute-1.amazonaws.com:/home/ec2-user/NewsClusters/articles_2018.csv ~/data_science/NewsClusters/data/articles_2018.csv
 
 

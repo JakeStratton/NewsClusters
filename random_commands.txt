@@ -1,0 +1,6 @@
+
+Use this to copy files to EC2:
+scp -i NewsClusters.pem ec2-user@ec2-52-202-226-218.compute-1.amazonaws.com:/home/ec2-user/NewsClusters/articles_2018.csv ~/data_science/NewsClusters/data/articles_2018.csv
+
+Use this to show all pandas columns:
+pd.set_option('display.max_columns', None)

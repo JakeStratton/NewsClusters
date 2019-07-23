@@ -55,7 +55,7 @@ def clean(df):
   df['byline_person_0_middlename'].fillna('None', inplace=True)
   df = df.reset_index()
   df['author'] = df[['byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname']].apply(lambda x: ' '.join(x), axis=1)
-  df['author'] = df['author'].map(lambda x: x.replace(' None ', ' ').title())
+  df['author'] = df['author'].map(lambda x: x.replace(' None ', ' ').lower())
 
   #fill all remaining nan values - only additional keywords are missing values at this point
   df = df.fillna('None')
