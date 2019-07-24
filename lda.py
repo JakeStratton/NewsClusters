@@ -24,7 +24,8 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 # NLTK Stop words
 from nltk.corpus import stopwords
 stop_words = stopwords.words('english')
-stop_words.extend(['say', 'says', 'said'])
+stop_words.extend(['say', 'says', 'said', 'year', 'time', 'new', 'way',
+                        'week', ])
 
 #show all padas columns for readability
 pd.set_option('display.max_columns', None)
@@ -69,7 +70,7 @@ def make_bigrams(texts):
 def make_trigrams(texts):
     return [trigram_mod[bigram_mod[doc]] for doc in texts]
 
-def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
+def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):  #, 'ADJ', 'VERB', 'ADV'
     """https://spacy.io/api/annotation"""
     texts_out = []
     for sent in texts:
@@ -88,7 +89,7 @@ data_words_bigrams = make_bigrams(data_words_nostops)
 nlp = spacy.load('en', disable=['parser', 'ner'])
 
 # Do lemmatization keeping only noun, adj, vb, adv
-data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']) #maybe make this just nouns?
+data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']) #
 
 # Create Dictionary and remove extremely common and rare words
 id2word = corpora.Dictionary(data_lemmatized)
@@ -113,6 +114,7 @@ lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                            passes=10,
                                            alpha='auto')
 
+'''
 # Build LDA model #2
 lda_model2 = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                            id2word=id2word,
@@ -122,6 +124,7 @@ lda_model2 = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                            chunksize=500,
                                            passes=10,
                                            alpha='auto')
+'''
 
 # Print the Keyword in the 10 topics
 pprint(lda_model.print_topics())
@@ -134,3 +137,9 @@ print('\nPerplexity: ', lda_model.log_perplexity(corpus))  # a measure of how go
 coherence_model_lda = CoherenceModel(model=lda_model, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
 coherence_lda = coherence_model_lda.get_coherence()
 print('\nCoherence Score: ', coherence_lda) 
+
+
+# Visualize the topics
+pyLDAvis.disable_notebook()
+vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+pyLDAvis.display(vis)
