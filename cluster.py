@@ -29,8 +29,7 @@ from nltk.stem.snowball import SnowballStemmer
 stemmer = SnowballStemmer("english")
 
 
-# here I define a tokenizer and stemmer which returns the set of stems in the text that it is passed
-
+# define a tokenizer and stemmer which returns the set of stems in the text that it is passed
 def tokenize_and_stem(text):
     # first tokenize by sentence, then by word to ensure that punctuation is caught as it's own token
     tokens = [word for sent in nltk.sent_tokenize(text) for word in nltk.word_tokenize(sent)]
@@ -54,7 +53,6 @@ def tokenize_only(text):
     return filtered_tokens
 
 
-#not super pythonic, no, not at all.
 #use extend so it's a big flat list of vocab
 totalvocab_stemmed = []
 totalvocab_tokenized = []
@@ -64,4 +62,21 @@ for i in text:
     
     allwords_tokenized = tokenize_only(i)
     totalvocab_tokenized.extend(allwords_tokenized)
- 
+
+
+#create a pandas DataFrame with the stemmed vocabulary
+vocab_frame = pd.DataFrame({'words': totalvocab_tokenized}, index = totalvocab_stemmed)
+print('there are ' + str(vocab_frame.shape[0]) + ' items in vocab_frame')
+
+
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+#define vectorizer parameters
+tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=200000,
+                                 min_df=0.2, stop_words='english',
+                                 use_idf=True, tokenizer=tokenize_and_stem, ngram_range=(1,3))
+
+tfidf_matrix = tfidf_vectorizer.fit_transform(text) #fit the vectorizer to synopses
+
+print(tfidf_matrix.shape)

@@ -1,0 +1,6 @@
+there are 5,963,685 words after stemming and lemmitization
+
+12,703 authors
+
+197,603 articles after removing unwanted articles
+
