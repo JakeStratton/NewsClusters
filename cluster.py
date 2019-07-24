@@ -7,8 +7,6 @@ import codecs
 from sklearn import feature_extraction
 import mpld3
 
-# load nltk's English stopwords as variable called 'stopwords'
-stopwords = nltk.corpus.stopwords.words('english')
 
 #load data
 df = pd.read_csv('data/articles_2014-2018_clean.csv')
@@ -22,6 +20,19 @@ text = df['text'].tolist()
 
 # load nltk's English stopwords as variable called 'stopwords'
 stopwords = nltk.corpus.stopwords.words('english')
+stopwords.extend(['say', 'says', 'said', 'abov', 'afterward', 'alon', 
+                'alreadi', 'alway', 'ani', 'anoth', 'anyon', 'anyth', 
+                'anywher', 'becam', 'becaus', 'becom', 'befor', 'besid', 
+                'cri', 'describ', 'dure', 'els', 'elsewher', 'empti', 
+                'everi', 'everyon', 'everyth', 'everywher', 'fifti', 
+                'forti', 'henc', 'hereaft', 'herebi', 'howev', 'hundr', 
+                'inde', 'mani', 'meanwhil', 'moreov', 'nobodi', 'noon', 
+                'noth', 'nowher', 'onc', 'onli', 'otherwis', 'ourselv', 
+                'perhap', 'pleas', 'sever', 'sinc', 'sincer', 'sixti', 
+                'someon', 'someth', 'sometim', 'somewher', 'themselv', 
+                'thenc', 'thereaft', 'therebi', 'therefor', 'togeth', 
+                'twelv', 'twenti', 'veri', 'whatev', 'whenc', 'whenev', 
+                'wherea', 'whereaft', 'wherebi', 'wherev', 'whi', 'yourselv'])
 
 
 # load nltk's SnowballStemmer as variabled 'stemmer'
@@ -73,8 +84,8 @@ print('there are ' + str(vocab_frame.shape[0]) + ' items in vocab_frame')
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 #define vectorizer parameters
-tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=200000,
-                                 min_df=0.2, stop_words='english',
+tfidf_vectorizer = TfidfVectorizer(max_df=0.99, max_features=100000,
+                                 min_df=0.007, stop_words='english',
                                  use_idf=True, tokenizer=tokenize_and_stem, ngram_range=(1,3))
 
 tfidf_matrix = tfidf_vectorizer.fit_transform(text) #fit the vectorizer to synopses

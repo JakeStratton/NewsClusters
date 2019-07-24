@@ -90,8 +90,9 @@ nlp = spacy.load('en', disable=['parser', 'ner'])
 # Do lemmatization keeping only noun, adj, vb, adv
 data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']) #maybe make this just nouns?
 
-# Create Dictionary
+# Create Dictionary and remove extremely common and rare words
 id2word = corpora.Dictionary(data_lemmatized)
+id2word.filter_extremes(no_below=15, no_above=0.5, keep_n= 100000)
 
 # Create Corpus
 texts = data_lemmatized
@@ -112,7 +113,7 @@ lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                            passes=10,
                                            alpha='auto')
 
-# Build LDA model #1
+# Build LDA model #2
 lda_model2 = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                            id2word=id2word,
                                            num_topics=16, 

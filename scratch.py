@@ -1,136 +1,138 @@
-#gensim
-import gensim 
-from gensim.utils import simple_preprocess 
-from gensim.parsing.preprocessing import STOPWORDS
-from gensim.utils import simple_preprocess
+import re
+import numpy as np
+import pandas as pd
+from pprint import pprint
+
+# Gensim
+import gensim
 import gensim.corpora as corpora
+from gensim.utils import simple_preprocess
 from gensim.models import CoherenceModel
+
+# spacy for lemmatization
+import spacy
 
 # Plotting tools
 import pyLDAvis
-import pyLDAvis.gensim  
+import pyLDAvis.gensim  # don't skip this
 import matplotlib.pyplot as plt
 
-#nltk
-import nltk
-from nltk.stem import WordNetLemmatizer, SnowballStemmer 
-from nltk.stem.porter import * 
-nltk.download('wordnet') 
+# Enable logging for gensim - optional
+import logging
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.ERROR)
 
-#other
-import numpy as np 
-import pandas as pd
-import re
-from pprint import pprint
+# NLTK Stop words
+from nltk.corpus import stopwords
+stop_words = stopwords.words('english')
+stop_words.extend(['say', 'says', 'said'])
 
+#show all padas columns for readability
+pd.set_option('display.max_columns', None)
 
-#load data
+#import data
 df = pd.read_csv('data/articles_2014-2018_clean.csv')
+df = df[['text', 'article_id', 'author_id']]
+df.head()
 
 #turn text column back in to list (pandas load is making it a string)
-df['text'] = df['text'].str.replace('[','').str.replace(']', '')
-df['text'] = df['text'].map(lambda x: [x])
+df['text'] = df['text'].str.replace('[','').str.replace(']', '').str.replace("'", "")
+#df['text'] = df['text'].map(lambda x: [x])
+
+# Convert to list
+data = df['text'].values.tolist()
+
+#tokenize
+def sent_to_words(sentences):
+    for sentence in sentences:
+        yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))  # deacc=True removes punctuations
+
+data_words = list(sent_to_words(data))
+
+# Build the bigram and trigram models
+bigram = gensim.models.Phrases(data_words, min_count=5, threshold=100) # higher threshold fewer phrases.
+trigram = gensim.models.Phrases(bigram[data_words], threshold=100)  
+
+# Faster way to get a sentence clubbed as a trigram/bigram
+bigram_mod = gensim.models.phrases.Phraser(bigram)
+trigram_mod = gensim.models.phrases.Phraser(trigram)
+
+# See trigram example
+print(trigram_mod[bigram_mod[data_words[0]]])
+
+# Define functions for stopwords, bigrams, trigrams and lemmatization
+def remove_stopwords(texts):
+    return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
+
+def make_bigrams(texts):
+    return [bigram_mod[doc] for doc in texts]
+
+def make_trigrams(texts):
+    return [trigram_mod[bigram_mod[doc]] for doc in texts]
+
+def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
+    """https://spacy.io/api/annotation"""
+    texts_out = []
+    for sent in texts:
+        doc = nlp(" ".join(sent)) 
+        texts_out.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
+    return texts_out
+
+# Remove Stop Words
+data_words_nostops = remove_stopwords(data_words)
+
+# Form Bigrams
+data_words_bigrams = make_bigrams(data_words_nostops)
+
+# Initialize spacy 'en' model, keeping only tagger component (for efficiency)
+# python3 -m spacy download en
+nlp = spacy.load('en', disable=['parser', 'ner'])
+
+# Do lemmatization keeping only noun, adj, vb, adv
+data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']) #maybe make this just nouns?
+
+# Create Dictionary and remove extremely common and rare words
+id2word = corpora.Dictionary(data_lemmatized)
+id2word.filter_extremes(no_below=15, no_above=0.5, keep_n= 100000)
+
+# Create Corpus
+texts = data_lemmatized
+
+# Term Document Frequency
+corpus = [id2word.doc2bow(text) for text in texts]
+
+# Human readable format of corpus (term-frequency)
+[[(id2word[id], freq) for id, freq in cp] for cp in corpus[:1]]
+
+# Build LDA model #1
+lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
+                                           id2word=id2word,
+                                           num_topics=10, 
+                                           random_state=1,
+                                           update_every=1,
+                                           chunksize=500,
+                                           passes=10,
+                                           alpha='auto')
 
 '''
-def main():
-    processed_docs = process_text(df['text'])
-    dictionary = gensim.corpora.Dictionary(processed_docs)
-    bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
-    lda_model = make_lda_model()
-
-    return None
+# Build LDA model #2
+lda_model2 = gensim.models.ldamodel.LdaModel(corpus=corpus,
+                                           id2word=id2word,
+                                           num_topics=16, 
+                                           random_state=1,
+                                           update_every=1,
+                                           chunksize=500,
+                                           passes=10,
+                                           alpha='auto')
 '''
-
-## Data Preprocessing
-# Tokenize and lemmatize and stem functions
-def lemmatize_stemming(text): 
-    stemmer = SnowballStemmer("english")
-    return stemmer.stem(WordNetLemmatizer().lemmatize(text, pos='v')) 
-
-def preprocess(text):
-    more_stop_words = ['says', 'york', 'year', 'time', 'said', 'say']
-    result=[] 
-    for token in gensim.utils.simple_preprocess(text):
-        if token not in gensim.parsing.preprocessing.STOPWORDS and token not in more_stop_words and len(token) > 3:
-            result.append(lemmatize_stemming(token))
-    return result 
-
-
-# process text
-def process_text(column):
-    processed_docs = []
-    for i in range(len(column)):
-        for doc in column[i]:
-            processed_docs.append(preprocess(doc))
-
-    return processed_docs
-
-
-# process the documents
-processed_docs = process_text(df['text'])
-
-##Bag of words on the dataset
-
-#Create a dictionary from 'processed_docs' containing the number of times a word appears 
-#in the training set using gensim.corpora
-#filter out extreme words
-dictionary = gensim.corpora.Dictionary(processed_docs)
-dictionary.filter_extremes(no_below=15, no_above=0.5, keep_n= 100000)
-
-#Create the Bag-of-words model for each document i.e for each document
-bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
-
-
-#Use this function to show the words in the corpus and how many times they occur in a given document
-def show_words(doc_num):
-  bow_doc = bow_corpus[doc_num]
-  for i in range(len(bow_doc)):
-      print("Word {} (\"{}\") appears {} time.".format(bow_doc[i][0], 
-                                                dictionary[bow_doc[i][0]], 
-  bow_doc[i][1]))
-
-
-# Build LDA model
-def make_lda_model():
-  lda_model = gensim.models.ldamodel.LdaModel(corpus=bow_corpus,
-                                            id2word=dictionary,
-                                            num_topics=20, 
-                                            random_state=100,
-                                            update_every=1,
-                                            chunksize=100,
-                                            passes=10,
-                                            alpha='auto',
-                                            per_word_topics=True)
-
-  return lda_model
-
 
 # Print the Keyword in the 10 topics
-def print_topics(lda_model):
-  pprint(lda_model.print_topics())
-  doc_lda = lda_model[bow_corpus]
-
-  return None
-
+pprint(lda_model.print_topics())
+doc_lda = lda_model[corpus]
 
 # Compute Perplexity
 print('\nPerplexity: ', lda_model.log_perplexity(corpus))  # a measure of how good the model is. lower the better.
 
 # Compute Coherence Score
-coherence_model_lda = CoherenceModel(model=lda_model, texts=data_lemmatized, dictionary=dictionary, coherence='c_v')
+coherence_model_lda = CoherenceModel(model=lda_model, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
 coherence_lda = coherence_model_lda.get_coherence()
-print('\nCoherence Score: ', coherence_lda)
-
-
-
-
-
-
-
-
-
-'''
-if __name__== "__main__":
-  main()
-'''
-
+print('\nCoherence Score: ', coherence_lda) 
