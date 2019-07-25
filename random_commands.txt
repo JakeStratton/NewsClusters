@@ -4,3 +4,17 @@ scp -i NewsClusters.pem ec2-user@ec2-52-202-226-218.compute-1.amazonaws.com:/hom
 
 Use this to show all pandas columns:
 pd.set_option('display.max_columns', None)
+
+Use this to connect to postgres
+sudo -u postgres psql
+
+Use this to switch to database
+\c NewsClusters
+
+use this to show table schema
+\d+ <tablename>
+
+use this to add columns
+ALTER TABLE custoemr 
+ ADD COLUMN fax VARCHAR,
+ ADD COLUMN email VARCHAR;

@@ -142,4 +142,49 @@ print('\nCoherence Score: ', coherence_lda)
 # Visualize the topics
 pyLDAvis.disable_notebook()
 vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
-pyLDAvis.display(vis)
+#save as HTML
+pyLDAvis.save_html(vis, 'lda.html')
+
+# try using mallets LDA - gensim has a wrapper to allow it to be buuilt on top of the gensim lda
+mallet_path = '/home/jake/data_science/mallet/mallet-2.0.8/bin/mallet' 
+ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=10, id2word=id2word)
+
+# Show Topics from mallet
+pprint(ldamallet.show_topics(formatted=False))
+
+# Compute Coherence Score from mallet
+coherence_model_ldamallet = CoherenceModel(model=ldamallet, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
+coherence_ldamallet = coherence_model_ldamallet.get_coherence()
+print('\nCoherence Score: ', coherence_ldamallet)
+
+
+#use this to determine how many topics to use.  it loops through and tries the model many different times
+def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
+    """
+    Compute c_v coherence for various number of topics
+
+    Parameters:
+    ----------
+    dictionary : Gensim dictionary
+    corpus : Gensim corpus
+    texts : List of input texts
+    limit : Max num of topics
+
+    Returns:
+    -------
+    model_list : List of LDA topic models
+    coherence_values : Coherence values corresponding to the LDA model with respective number of topics
+    """
+    coherence_values = []
+    model_list = []
+    for num_topics in range(start, limit, step):
+        model = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=num_topics, id2word=id2word)
+        model_list.append(model)
+        coherencemodel = CoherenceModel(model=model, texts=texts, dictionary=dictionary, coherence='c_v')
+        coherence_values.append(coherencemodel.get_coherence())
+
+    return model_list, coherence_values
+
+#run the above compute coherence values to find the best
+# Can take a long time to run.
+model_list, coherence_values = compute_coherence_values(dictionary=id2word, corpus=corpus, texts=data_lemmatized, start=6, limit=18, step=3)
