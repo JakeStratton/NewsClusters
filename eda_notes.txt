@@ -4,3 +4,9 @@ there are 5,963,685 words after stemming and lemmitization
 
 197,603 articles after removing unwanted articles
 
+
+gensim LDA coherence score with 10 topics:
+.21
+
+
+

@@ -199,7 +199,7 @@ plt.plot(x, coherence_values)
 plt.title('Coherence Score per Number of Topics')
 plt.xlabel("Num Topics")
 plt.ylabel("Coherence score")
-plt.legend(("coherence_values"))
+plt.legend(("coherence_values"), loc='best')
 plt.show()
 
 # Print the coherence scores
@@ -242,11 +242,11 @@ df_dominant_topic = df_topic_sents_keywords.reset_index()
 df_dominant_topic.columns = ['Document_No', 'Dominant_Topic', 'Topic_Perc_Contrib', 'Keywords', 'Text']
 
 
-#add topics to articles df and clean up unneded columns, and save.
+#add topics to articles df and clean up unneded columns.
 df_articles = pd.read_csv('data/articles_2014-2018_clean.csv')
 df_articles = pd.concat([df_articles, df_dominant_topic], axis=1, sort=False)
 df_articles = df_articles.drop(['Text', 'Unnamed: 0'], axis=1)
-df_articles.to_csv('data/articles_2014-2018_topics.csv')
+
 
 #create topics df
 # Number of Documents for Each Topic
@@ -271,12 +271,19 @@ topic_names = ['NY Local', 'Politics and Elections', 'Foreign Affairs',
                 'Education', 'Music', 'Economy', 'Government', 'Law', 'Labor', 
                 'Crime', 'World News', 'Film', 'Theater', 'Social']
 
+#add topic names to articles df and save
+mydict = {v: k for v, k in enumerate(topic_names)} 
+df_articles['topic_name'] = df_articles['Dominant_Topic'].map(mydict) 
+df_articles.to_csv('data/articles_2014-2018_topics.csv')
+
 #insert topic names in to topics df
 topic_names = pd.Series(topic_names)
 df_topics = pd.concat([df_topics, topic_names], axis=1, sort=False)
 df_topics.columns = ['topic', 'topic_keywords', 'num_docs', 'percent_docs', 'topic_name']
 #save topics df
 df_topics.to_csv('data/topics.csv')
+
+
 
 
 #convert mallet model to gensim in order to display using pyLDAvis
@@ -287,7 +294,6 @@ pyLDAvis.disable_notebook()
 vis = pyLDAvis.gensim.prepare(lda_model_mallet, corpus, id2word)
 #save as HTML
 pyLDAvis.save_html(vis, 'lda_mallet.html')
-
 
 #create authors df
 df_authors = df[['author_id', 'byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname', 'author']]
