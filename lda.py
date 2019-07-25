@@ -107,7 +107,7 @@ corpus = [id2word.doc2bow(text) for text in texts]
 # Build LDA model #1
 lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                            id2word=id2word,
-                                           num_topics=10, 
+                                           num_topics=22, 
                                            random_state=1,
                                            update_every=1,
                                            chunksize=500,
@@ -147,7 +147,7 @@ pyLDAvis.save_html(vis, 'lda.html')
 
 # try using mallets LDA - gensim has a wrapper to allow it to be buuilt on top of the gensim lda
 mallet_path = '/home/jake/data_science/mallet/mallet-2.0.8/bin/mallet' 
-ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=10, id2word=id2word)
+ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=22, id2word=id2word)
 
 # Show Topics from mallet
 pprint(ldamallet.show_topics(formatted=False))
@@ -196,9 +196,10 @@ model_list, coherence_values = compute_coherence_values(dictionary=id2word,
 limit=41; start=10; step=2;
 x = range(start, limit, step)
 plt.plot(x, coherence_values)
+plt.title('Coherence Score per Number of Topics')
 plt.xlabel("Num Topics")
 plt.ylabel("Coherence score")
-plt.legend(("coherence_values"), loc='best')
+plt.legend(("coherence_values"))
 plt.show()
 
 # Print the coherence scores
@@ -276,6 +277,17 @@ df_topics = pd.concat([df_topics, topic_names], axis=1, sort=False)
 df_topics.columns = ['topic', 'topic_keywords', 'num_docs', 'percent_docs', 'topic_name']
 #save topics df
 df_topics.to_csv('data/topics.csv')
+
+
+#convert mallet model to gensim in order to display using pyLDAvis
+lda_model_mallet = gensim.models.wrappers.ldamallet.malletmodel2ldamodel(ldamallet)
+
+# Visualize the mallet LDA topics
+pyLDAvis.disable_notebook()
+vis = pyLDAvis.gensim.prepare(lda_model_mallet, corpus, id2word)
+#save as HTML
+pyLDAvis.save_html(vis, 'lda_mallet.html')
+
 
 #create authors df
 df_authors = df[['author_id', 'byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname', 'author']]
