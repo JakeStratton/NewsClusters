@@ -236,11 +236,46 @@ def format_topics_sentences(ldamodel=lda_model, corpus=corpus, texts=data):
 
 df_topic_sents_keywords = format_topics_sentences(ldamodel=optimal_model, corpus=corpus, texts=data)
 
-# Format
+# create df of each article with associated dominant topic
 df_dominant_topic = df_topic_sents_keywords.reset_index()
 df_dominant_topic.columns = ['Document_No', 'Dominant_Topic', 'Topic_Perc_Contrib', 'Keywords', 'Text']
 
-# Show
-df_dominant_topic.head(10)
 
-#next add the dominant topic df to the articles dataframe and db.
+#add topics to articles df and clean up unneded columns, and save.
+df_articles = pd.read_csv('data/articles_2014-2018_clean.csv')
+df_articles = pd.concat([df_articles, df_dominant_topic], axis=1, sort=False)
+df_articles = df_articles.drop(['Text', 'Unnamed: 0'], axis=1)
+df_articles.to_csv('data/articles_2014-2018_topics.csv')
+
+#create topics df
+# Number of Documents for Each Topic
+topic_counts = df_topic_sents_keywords['Dominant_Topic'].value_counts().sort_index() 
+# Percentage of Documents for Each Topic
+topic_contribution = round(topic_counts/topic_counts.sum(), 4).sort_index() 
+# Topic Number and Keywords
+topic_num_keywords = df_topic_sents_keywords[['Dominant_Topic', 'Topic_Keywords']]
+topic_num_keywords = topic_num_keywords.drop_duplicates(subset ="Dominant_Topic").set_index('Dominant_Topic')
+topic_num_keywords = topic_num_keywords.sort_index()
+# Concatenate 
+df_topics = pd.concat([topic_num_keywords, topic_counts, topic_contribution], axis=1, sort=False)
+# Change Column names and re-index to get topic num as a column
+df_topics.columns = ['topic_keywords', 'num_docs', 'percent_docs']
+df_topics.reset_index(level=0, inplace=True) 
+df_topics.columns = ['topic', 'topic_keywords', 'num_docs', 'percent_docs']
+
+#create topic names (manually inferred)
+topic_names = ['NY Local', 'Politics and Elections', 'Foreign Affairs',
+                'Health and Science', 'War and Conflict', 'News about News', 
+                'Travel', 'Technology', 'Fashion', 'Local Sports', 'National Sports',
+                'Education', 'Music', 'Economy', 'Government', 'Law', 'Labor', 
+                'Crime', 'World News', 'Film', 'Theater', 'Social']
+
+#insert topic names in to topics df
+topic_names = pd.Series(topic_names)
+df_topics = pd.concat([df_topics, topic_names], axis=1, sort=False)
+df_topics.columns = ['topic', 'topic_keywords', 'num_docs', 'percent_docs', 'topic_name']
+#save topics df
+df_topics.to_csv('data/topics.csv')
+
+#create authors df
+df_authors = df[['author_id', 'byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname', 'author']]
