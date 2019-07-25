@@ -187,4 +187,25 @@ def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
 
 #run the above compute coherence values to find the best
 # Can take a long time to run.
-model_list, coherence_values = compute_coherence_values(dictionary=id2word, corpus=corpus, texts=data_lemmatized, start=6, limit=18, step=3)
+model_list, coherence_values = compute_coherence_values(dictionary=id2word, 
+                                                        corpus=corpus, texts=data_lemmatized, 
+                                                        start=10, limit=41, step=2)
+
+#plot results of the multiple mallet topic tries
+# Show graph
+limit=41; start=10; step=2;
+x = range(start, limit, step)
+plt.plot(x, coherence_values)
+plt.xlabel("Num Topics")
+plt.ylabel("Coherence score")
+plt.legend(("coherence_values"), loc='best')
+plt.show()
+
+# Print the coherence scores
+for m, cv in zip(x, coherence_values):
+    print("Num Topics =", m, " has Coherence Value of", round(cv, 4))
+
+# Select the model and print the topics
+optimal_model = model_list[6] #model 6 is the best (22 topics)
+model_topics = optimal_model.show_topics(formatted=False)
+pprint(optimal_model.print_topics(num_words=20))
