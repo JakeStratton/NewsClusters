@@ -307,7 +307,7 @@ df_authors_sums = df_articles.groupby(['author_id']).sum()
 df_authors_sums = df_authors_sums.drop(['Unnamed: 0',  'Document_No',  'Topic_Perc_Contrib',  'topic_num'], axis=1) 
 df_authors_sums.reset_index(level=0, inplace=True)
 df_authors = df_authors.set_index('author_id').join(df_authors_sums.set_index('author_id'))
-df_authors = df_authors.dropna(axis='columns')
+df_authors = df_authors.dropna(axis='rows')
 
 #add percentage columns to authors df #find a more pythonic way to do this!!!!!
 df_authors['total_articles'] = df_authors.sum(axis=1)  #total articles for each author
@@ -335,4 +335,36 @@ df_authors['topic_num_20_perc'] = df_authors['topic_num_20'] / df_authors['total
 df_authors['topic_num_21_perc'] = df_authors['topic_num_21'] / df_authors['total_articles'] 
 df_authors = df_authors.round(2) #round off for easy percentage reading
 
-#save df_authors
+#add dominant topic for each author
+df_authors['dominant_topic'] = df_authors[['topic_num_0',
+                                        'topic_num_1',
+                                        'topic_num_2',
+                                        'topic_num_3',
+                                        'topic_num_4',
+                                        'topic_num_5',
+                                        'topic_num_6',
+                                        'topic_num_7',
+                                        'topic_num_8',
+                                        'topic_num_9',
+                                        'topic_num_10',
+                                        'topic_num_11',
+                                        'topic_num_12',
+                                        'topic_num_13',
+                                        'topic_num_14',
+                                        'topic_num_15',
+                                        'topic_num_16',
+                                        'topic_num_17',
+                                        'topic_num_18',
+                                        'topic_num_19',
+                                        'topic_num_20',
+                                        'topic_num_21'
+                                        ]].idxmax(axis=1)
+
+df_authors['dominant_topic'] = df_authors['dominant_topic'].str.replace('topic_num_', '')
+df_authors['dominant_topic'] = df_authors['dominant_topic'].astype('int16')
+
+#add topic names to authors df and save
+mydict = {v: k for v, k in enumerate(topic_names)} 
+df_authors['dominant_topic_name'] = df_authors['dominant_topic'].map(mydict) 
+df_authors = df_authors.reset_index()
+df_authors.to_csv('data/authors.csv')
