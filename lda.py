@@ -274,7 +274,7 @@ topic_names = ['NY Local', 'Politics and Elections', 'Foreign Affairs',
 #add topic names to articles df and save
 mydict = {v: k for v, k in enumerate(topic_names)} 
 df_articles['topic_name'] = df_articles['Dominant_Topic'].map(mydict) 
-df_articles.to_csv('data/articles_2014-2018_topics.csv')
+
 
 #insert topic names in to topics df
 topic_names = pd.Series(topic_names)
@@ -287,15 +287,17 @@ df_topics.to_csv('data/topics.csv')
 df_articles['Dominant_Topic'] = df_articles['Dominant_Topic'].astype('int16')
 df_articles['topic_num'] = df_articles['Dominant_Topic']
 df_articles = pd.get_dummies(df_articles, prefix=['topic_num'], columns=['Dominant_Topic'])  
+#save df_articles
+df_articles.to_csv('data/articles_2014-2018_topics.csv')
 
 #convert mallet model to gensim in order to display using pyLDAvis
 lda_model_mallet = gensim.models.wrappers.ldamallet.malletmodel2ldamodel(ldamallet)
 
 # Visualize the mallet LDA topics
 pyLDAvis.disable_notebook()
-vis = pyLDAvis.gensim.prepare(lda_model_mallet, corpus, id2word)
+mallet_vis = pyLDAvis.gensim.prepare(lda_model_mallet, corpus, id2word)
 #save as HTML
-pyLDAvis.save_html(vis, 'lda_mallet.html')
+pyLDAvis.save_html(mallet_vis, 'lda_mallet.html')
 
 #create authors df with counts of articles in each topic
 df_authors = df_articles[['author_id', 'byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname', 'author']]
@@ -332,3 +334,5 @@ df_authors['topic_num_19_perc'] = df_authors['topic_num_19'] / df_authors['total
 df_authors['topic_num_20_perc'] = df_authors['topic_num_20'] / df_authors['total_articles'] 
 df_authors['topic_num_21_perc'] = df_authors['topic_num_21'] / df_authors['total_articles'] 
 df_authors = df_authors.round(2) #round off for easy percentage reading
+
+#save df_authors
