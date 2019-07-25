@@ -283,8 +283,10 @@ df_topics.columns = ['topic', 'topic_keywords', 'num_docs', 'percent_docs', 'top
 #save topics df
 df_topics.to_csv('data/topics.csv')
 
-
-
+#OHE the dominant topic column
+df_articles['Dominant_Topic'] = df_articles['Dominant_Topic'].astype('int16')
+df_articles['topic_num'] = df_articles['Dominant_Topic']
+df_articles = pd.get_dummies(df_articles, prefix=['topic_num'], columns=['Dominant_Topic'])  
 
 #convert mallet model to gensim in order to display using pyLDAvis
 lda_model_mallet = gensim.models.wrappers.ldamallet.malletmodel2ldamodel(ldamallet)
@@ -295,5 +297,38 @@ vis = pyLDAvis.gensim.prepare(lda_model_mallet, corpus, id2word)
 #save as HTML
 pyLDAvis.save_html(vis, 'lda_mallet.html')
 
-#create authors df
-df_authors = df[['author_id', 'byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname', 'author']]
+#create authors df with counts of articles in each topic
+df_authors = df_articles[['author_id', 'byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname', 'author']]
+df_authors = df_authors.drop_duplicates().set_index('author_id')
+df_authors.reset_index(level=0, inplace=True)
+df_authors_sums = df_articles.groupby(['author_id']).sum()
+df_authors_sums = df_authors_sums.drop(['Unnamed: 0',  'Document_No',  'Topic_Perc_Contrib',  'topic_num'], axis=1) 
+df_authors_sums.reset_index(level=0, inplace=True)
+df_authors = df_authors.set_index('author_id').join(df_authors_sums.set_index('author_id'))
+df_authors = df_authors.dropna(axis='columns')
+
+#add percentage columns to authors df #find a more pythonic way to do this!!!!!
+df_authors['total_articles'] = df_authors.sum(axis=1)  #total articles for each author
+df_authors['topic_num_0_perc'] = df_authors['topic_num_0'] / df_authors['total_articles'] 
+df_authors['topic_num_1_perc'] = df_authors['topic_num_1'] / df_authors['total_articles'] 
+df_authors['topic_num_2_perc'] = df_authors['topic_num_2'] / df_authors['total_articles'] 
+df_authors['topic_num_3_perc'] = df_authors['topic_num_3'] / df_authors['total_articles'] 
+df_authors['topic_num_4_perc'] = df_authors['topic_num_4'] / df_authors['total_articles'] 
+df_authors['topic_num_5_perc'] = df_authors['topic_num_5'] / df_authors['total_articles'] 
+df_authors['topic_num_6_perc'] = df_authors['topic_num_6'] / df_authors['total_articles'] 
+df_authors['topic_num_7_perc'] = df_authors['topic_num_7'] / df_authors['total_articles'] 
+df_authors['topic_num_8_perc'] = df_authors['topic_num_8'] / df_authors['total_articles'] 
+df_authors['topic_num_9_perc'] = df_authors['topic_num_9'] / df_authors['total_articles'] 
+df_authors['topic_num_10_perc'] = df_authors['topic_num_10'] / df_authors['total_articles'] 
+df_authors['topic_num_11_perc'] = df_authors['topic_num_11'] / df_authors['total_articles'] 
+df_authors['topic_num_12_perc'] = df_authors['topic_num_12'] / df_authors['total_articles'] 
+df_authors['topic_num_13_perc'] = df_authors['topic_num_13'] / df_authors['total_articles'] 
+df_authors['topic_num_14_perc'] = df_authors['topic_num_14'] / df_authors['total_articles'] 
+df_authors['topic_num_15_perc'] = df_authors['topic_num_15'] / df_authors['total_articles'] 
+df_authors['topic_num_16_perc'] = df_authors['topic_num_16'] / df_authors['total_articles'] 
+df_authors['topic_num_17_perc'] = df_authors['topic_num_17'] / df_authors['total_articles'] 
+df_authors['topic_num_18_perc'] = df_authors['topic_num_18'] / df_authors['total_articles'] 
+df_authors['topic_num_19_perc'] = df_authors['topic_num_19'] / df_authors['total_articles'] 
+df_authors['topic_num_20_perc'] = df_authors['topic_num_20'] / df_authors['total_articles'] 
+df_authors['topic_num_21_perc'] = df_authors['topic_num_21'] / df_authors['total_articles'] 
+df_authors = df_authors.round(2) #round off for easy percentage reading
