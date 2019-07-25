@@ -24,8 +24,8 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 # NLTK Stop words
 from nltk.corpus import stopwords
 stop_words = stopwords.words('english')
-stop_words.extend(['say', 'says', 'said', 'year', 'time', 'new', 'way',
-                        'week', ])
+stop_words.extend(['say', 'says', 'said', 'year', 'time', 'way',
+                        'week', 'make', 'thursday', 'monday', 'tuesday', 'wednesday', 'friday'  ])
 
 #show all padas columns for readability
 pd.set_option('display.max_columns', None)
@@ -70,7 +70,7 @@ def make_bigrams(texts):
 def make_trigrams(texts):
     return [trigram_mod[bigram_mod[doc]] for doc in texts]
 
-def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):  #, 'ADJ', 'VERB', 'ADV'
+def lemmatization(texts, allowed_postags=['NOUN', 'VERB']):  #, 'ADJ', 'VERB', 'ADV'
     """https://spacy.io/api/annotation"""
     texts_out = []
     for sent in texts:
@@ -89,7 +89,7 @@ data_words_bigrams = make_bigrams(data_words_nostops)
 nlp = spacy.load('en', disable=['parser', 'ner'])
 
 # Do lemmatization keeping only noun, adj, vb, adv
-data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']) #
+data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'VERB' ]) #'ADV', 'ADJ'
 
 # Create Dictionary and remove extremely common and rare words
 id2word = corpora.Dictionary(data_lemmatized)
