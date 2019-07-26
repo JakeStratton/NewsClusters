@@ -7,16 +7,22 @@ class Author(db.Model):
     author_id = db.Column(db.String, primary_key=True)
     author = db.Column(db.String)
     junk = db.Column(db.String)
-    firstname = db.Column(db.String)
-    lastname = db.Column(db.String)
-    middlename = db.Column(db.String)
+    byline_person_0_firstname = db.Column(db.String)
+    byline_person_0_lastname = db.Column(db.String)
+    byline_person_0_middlename = db.Column(db.String)
+    dominant_topic_name = db.Column(db.String)
+    total_articles = db.Column(db.Integer)
 
     def __init__(self, author):
         """"""
         self.author = author
+        self.author_id = author_id
+        self.dominant_topic_name = dominant_topic_name
+        self.total_articles = total_articles
+
 
     def __repr__(self):
-        return "<Author: {}>".format(self.author)
+        return self.author
 
 
 class Article(db.Model):
@@ -31,15 +37,10 @@ class Article(db.Model):
     byline_person_0_lastname = db.Column(db.String)
     web_url = db.Column(db.String)
 
-    author = db.Column(db.String)
-    author_id = db.Column(db.String)
-
-    #add this back after populating authors table
-    '''   
     author_id = db.Column(db.String, db.ForeignKey("authors.author_id"))
     author = db.relationship("Author", backref=db.backref(
         "articles", order_by=article_id), lazy=True)  #this might need to be changed to author_id
-    '''
+
 
     def __init__(self, headline_main, pub_date, source, type_of_material, web_url):
         """"""

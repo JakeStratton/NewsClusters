@@ -12,14 +12,63 @@ class Author(Base):
 
     author_id = Column(String, primary_key=True)
     author = Column(String)
-    junk = db.Column(db.String)
-    firstname = db.Column(db.String)
-    lastname = db.Column(db.String)
-    middlename = db.Column(db.String)
-
-    def __init__(self, author):
+    junk = Column(String)
+    byline_person_0_firstname = Column(String)
+    byline_person_0_lastname = Column(String)
+    byline_person_0_middlename = Column(String)
+    topic_num_0 = Column(Integer())
+    topic_num_1 = Column(Integer())
+    topic_num_2 = Column(Integer())
+    topic_num_3 = Column(Integer())
+    topic_num_4 = Column(Integer())
+    topic_num_5 = Column(Integer())
+    topic_num_6 = Column(Integer())
+    topic_num_7 = Column(Integer())
+    topic_num_8 = Column(Integer())
+    topic_num_9 = Column(Integer())
+    topic_num_10 = Column(Integer())
+    topic_num_11 = Column(Integer())
+    topic_num_12 = Column(Integer())
+    topic_num_13 = Column(Integer())
+    topic_num_14 = Column(Integer())
+    topic_num_15 = Column(Integer())
+    topic_num_16 = Column(Integer())
+    topic_num_17 = Column(Integer())
+    topic_num_18 = Column(Integer())
+    topic_num_19 = Column(Integer())
+    topic_num_20 = Column(Integer())
+    topic_num_21 = Column(Integer())
+    total_articles = Column(Integer())
+    topic_num_0_perc = Column(Integer())
+    topic_num_1_perc = Column(Integer())
+    topic_num_2_perc = Column(Integer())
+    topic_num_3_perc = Column(Integer())
+    topic_num_4_perc = Column(Integer())
+    topic_num_5_perc = Column(Integer())
+    topic_num_6_perc = Column(Integer())
+    topic_num_7_perc = Column(Integer())
+    topic_num_8_perc = Column(Integer())
+    topic_num_9_perc = Column(Integer())
+    topic_num_10_perc = Column(Integer())
+    topic_num_11_perc = Column(Integer())
+    topic_num_12_perc = Column(Integer())
+    topic_num_13_perc = Column(Integer())
+    topic_num_14_perc = Column(Integer())
+    topic_num_15_perc = Column(Integer())
+    topic_num_16_perc = Column(Integer())
+    topic_num_17_perc = Column(Integer())
+    topic_num_18_perc = Column(Integer())
+    topic_num_19_perc = Column(Integer())
+    topic_num_20_perc = Column(Integer())
+    topic_num_21_perc = Column(Integer())
+    dominant_topic_num = Column(Integer())
+    dominant_topic_name = Column(String())
+    def __init__(self, author, author_id, dominant_topic_name, total_articles):
         """"""
         self.author = author
+        self.author_id = author_id
+        self.dominant_topic_name = dominant_topic_name
+        self.total_articles = total_articles
 
     def __repr__(self):
         return "<Author: {}>".format(self.author)
@@ -46,16 +95,16 @@ class Article(Base):
     keywords_2_value= Column(String())
     byline_person_0_middlename= Column(String())
     keywords_0_value= Column(String())
-    
+
+    '''
     author = Column(String())
     author_id = Column(String())
-
-    #add this back after populating authors table
     '''
+ 
     author_id = Column(String, ForeignKey("authors.author_id"))
     author = relationship("Author", backref=backref(
         "articles", order_by=article_id)) #this might need to be changed to author_id
-    '''
+
 
     def __init__(self, headline_main, pub_date, source, type_of_material, web_url):
         """"""
@@ -68,3 +117,5 @@ class Article(Base):
 
 # create tables
 Base.metadata.create_all(engine)
+
+
