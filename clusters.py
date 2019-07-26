@@ -67,13 +67,13 @@ def make_dendrogram(dataframe, linkage_method, metric, color_threshold=None):
     distxy = squareform(pdist(dataframe.values, metric=metric))
     Z = linkage(distxy, linkage_method)
     plt.figure(figsize=(20, 8))
-    plt.title('Hierarchical Clustering Dendrogram')
-    plt.xlabel('author')
-    plt.ylabel('distance')
+    plt.title('Top 100 Authors based on Total Articles')
+    plt.xlabel('Author')
+    plt.ylabel('Distance')
     dendrogram(
         Z,
         leaf_rotation=90.,  # rotates the x axis labels
-        leaf_font_size=12.,  # font size for the x axis labels
+        leaf_font_size=8.,  # font size for the x axis labels
         labels = dataframe.index,
         color_threshold = color_threshold
     )
