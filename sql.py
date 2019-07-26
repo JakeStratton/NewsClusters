@@ -27,7 +27,34 @@ query = '''
             author varchar(100),
             author_id varchar(100),
             article_id varchar(500),
-            text varchar(1000)
+            text varchar(1000),
+            Document_No NUMERIC,
+            Topic_Perc_Contrib NUMERIC,
+            Keywords varchar(1000),
+            topic_name varchar(100),
+            topic_num NUMERIC,
+            topic_num_0 NUMERIC,
+            topic_num_1 NUMERIC,
+            topic_num_2 NUMERIC,
+            topic_num_3 NUMERIC,
+            topic_num_4 NUMERIC,
+            topic_num_5 NUMERIC,
+            topic_num_6 NUMERIC,
+            topic_num_7 NUMERIC,
+            topic_num_8 NUMERIC,
+            topic_num_9 NUMERIC,0
+            topic_num_10 NUMERIC,
+            topic_num_11 NUMERIC,
+            topic_num_12 NUMERIC,
+            topic_num_13 NUMERIC,
+            topic_num_14 NUMERIC,
+            topic_num_15 NUMERIC,
+            topic_num_16 NUMERIC,
+            topic_num_17 NUMERIC,
+            topic_num_18 NUMERIC,
+            topic_num_19 NUMERIC,
+            topic_num_20 NUMERIC,
+            topic_num_21 NUMERIC
         );
         '''
 
@@ -40,8 +67,13 @@ query = '''
         byline_person_0_middlename,headline_main,keywords_0_value,
         keywords_1_value,keywords_2_value,pub_date,section_name,snippet,
         source,type_of_material,web_url,word_count,author,author_id,
-        article_id,text)
-        FROM '/home/jake/data_science/NewsClusters/data/articles_2014-2018_clean.csv' 
+        article_id,text,Document_No,Topic_Perc_Contrib,Keywords,topic_name,
+        topic_num,topic_num_0,topic_num_1,topic_num_2,topic_num_3,topic_num_4,
+        topic_num_5,topic_num_6,topic_num_7,topic_num_8,topic_num_9,topic_num_10,
+        topic_num_11,topic_num_12,topic_num_13,topic_num_14,topic_num_15,
+        topic_num_16,topic_num_17,topic_num_18,topic_num_19,topic_num_20,
+        topic_num_21)
+        FROM '/home/jake/data_science/NewsClusters/data/articles.csv' 
         DELIMITER ',' 
         CSV HEADER;
         '''

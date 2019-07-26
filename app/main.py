@@ -37,6 +37,12 @@ def search_results(search):
             qry = db_session.query(Article).filter(
                 Article.headline_main.contains(search_string))
             results = qry.all()
+
+        elif search.data['select'] == 'dominant_topic_name':
+            qry = db_session.query(Author).filter(
+                authors.dominant_topic_name.contains(search_string))
+            results = qry.all()
+
         else:
             qry = db_session.query(Article)
             results = qry.all()
@@ -47,6 +53,9 @@ def search_results(search):
     if not results:
         flash('No results found!')
         return redirect('/')
+
+
+
     else:
         # display results
         table = Results(results)

@@ -92,9 +92,10 @@ class Article(Base):
     snippet = Column(String())
     byline_person_0_lastname = Column(String())
     junk = Column(String())
-    keywords_2_value= Column(String())
-    byline_person_0_middlename= Column(String())
-    keywords_0_value= Column(String())
+    keywords_2_value = Column(String())
+    byline_person_0_middlename = Column(String())
+    keywords_0_value = Column(String())
+    topic_name = Column(String())
 
     '''
     author = Column(String())
@@ -113,6 +114,8 @@ class Article(Base):
         self.source = source
         self.type_of_material = type_of_material
         self.web_url = web_url
+        self.topic_name = topic_name
+
 
 
 # create tables

@@ -8,8 +8,8 @@ con = pg2.connect("host='localhost' dbname='newsclusters' user='jake' password='
 cur = con.cursor()
 
 #ADD authors table
-query = '''	SELECT * FROM authors
-            ;
+query = '''	DROP TABLE articles;
+           
         '''
 
 cur.execute(query)

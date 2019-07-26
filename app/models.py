@@ -36,6 +36,8 @@ class Article(db.Model):
     type_of_material = db.Column(db.String)
     byline_person_0_lastname = db.Column(db.String)
     web_url = db.Column(db.String)
+    topic_name = db.Column(db.String)
+    
 
     author_id = db.Column(db.String, db.ForeignKey("authors.author_id"))
     author = db.relationship("Author", backref=db.backref(
@@ -49,3 +51,4 @@ class Article(db.Model):
         self.source = source
         self.type_of_material = type_of_material
         self.web_url = web_url
+        self.topic_name = topic_name

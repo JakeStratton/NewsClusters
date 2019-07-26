@@ -288,7 +288,7 @@ df_articles['Dominant_Topic'] = df_articles['Dominant_Topic'].astype('int16')
 df_articles['topic_num'] = df_articles['Dominant_Topic']
 df_articles = pd.get_dummies(df_articles, prefix=['topic_num'], columns=['Dominant_Topic'])  
 #save df_articles
-df_articles.to_csv('data/articles_2014-2018_topics.csv')
+df_articles.to_csv('data/articles.csv')
 
 #convert mallet model to gensim in order to display using pyLDAvis
 lda_model_mallet = gensim.models.wrappers.ldamallet.malletmodel2ldamodel(ldamallet)
