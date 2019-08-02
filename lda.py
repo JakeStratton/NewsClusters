@@ -88,7 +88,7 @@ data_words_bigrams = make_bigrams(data_words_nostops)
 # python3 -m spacy download en
 nlp = spacy.load('en', disable=['parser', 'ner'])
 
-# Do lemmatization keeping only noun, adj, vb, adv
+# Do lemmatization keeping only noun, vb
 data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'VERB' ]) #'ADV', 'ADJ'
 
 # Create Dictionary and remove extremely common and rare words
