@@ -6,6 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://jake:passwordjake@localhost:5432/newsclusters'
-app.secret_key = "dghdfk6df!"
+app.secret_key = "fsddfdfg5!"
 
 db = SQLAlchemy(app)
