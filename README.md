@@ -1,7 +1,7 @@
 # NewsClusters
 
 ## Background
-Recently, my girlfriend got a new job as a media strategist for an environmental organization. She'd never worked in the NY area before, so she faced the tough task of learning about the different reporters specific to the northeast region. Individuals who work in communications and public relations, often need to find reporters to write about issues that are important to their organization. But how could they find these new authors without actually reading their stories? I  had an idea - what about a machine learning application that would intake text, assign topics based on content, and allow her to search for unknown reporters based on topics they write about. She could then also see which other reporters write about similar topics, allowing her to find out about nrew reporters without actually searching through the news and reading all of their stories.
+Recently, my girlfriend got a new job as a media strategist for an environmental organization. She'd never worked in the NY area before, so she faced the tough task of learning about the different reporters specific to the northeast region. Individuals who work in communications and public relations, often need to find reporters to write about issues that are important to their organization. But how could they find these new authors without actually reading their stories? I  had an idea - what about a machine learning application that would intake text, assign topics based on content, and allow her to search for unknown reporters based on topics they write about. She could then also see which other reporters write about similar topics, allowing her to find out about new reporters without actually searching through the news and reading all of their stories.
 
 ## Approach
 * Data Collection
@@ -40,6 +40,9 @@ I randomly chose 8, 10, 16, and 20 topics, and I didn't get very good results. M
 
 <INSERT LINK TO LDAVIS HERE>
 
+<iframe src = "/plots/lda_gensim.html">
+    Sorry your browser does not support inline frames.
+</iframe>
 
 I then decided to try using the Mallet LDA package, created by UMASS and Gensim has a wrapper for it so that you can easily apply it on top of the Gensim preprocessing.   I also made the following tweaks to preproceesing and recreated the corpus.
 * Text was stemmed and lemmitized, but only nouns and verbs were included.  Adjectives and adverbs were ignored.
@@ -53,7 +56,7 @@ Using that information, I ran the modelu using the preprocessing updates, Mallet
 
 <INSERT LINK TO LDAVIS HERE>
 
-It was extremely easy top infer human-useable topics from the words representing each topic:
+It was extremely easy to infer human-useable terms to represent each topic:
 
 <INSERT TOPIC LIST>
 
