@@ -96,10 +96,12 @@ Here are some of the results when I searched for "dogs" in the headline.  If you
 I then created an authors table in the PostgreSQL database, and added a column for each topic, and  entered the percentage of each author's articles for the column in which that topic was the dominant topic.  I was able to then use hierarchical LDA clustering to group authors based on their distribution of topics.
 
 To more easily visualize this, I clustered the 100 authors with the most articles.  You can see that it is correctly grouping together authors that write about similar topics.
+
 ![alt text](plots/dendrogram_top100.png "Dendrogram")
+
 ![alt text](plots/dendro_zoomed.png "Proof")
 
 ## Next Steps
 I'd like to make this much more user-friendly, and in order to do that I need to make the flask search much smoother and more useful by including more information about each author, and by showing author-to-author search results to find authors that write about topics similar to one another.
 
-Additionally, I'd like ot include news from many more major news outlets in order to make this more worthwhile.
+Additionally, I'd like to include news from many more major news outlets in order to make this more worthwhile.
