@@ -1,7 +1,7 @@
 # NewsClusters
 
 ## Background
-Recently, my girlfriend got a new job as a media strategist for an environmental organization. She'd never worked in the NY area before, so she faced the tough task of learning about the different reporters specific to the northeast region. Individuals who work in communications and public relations, often need to find reporters to write about issues that are important to their organization. But how could they find these new authors without actually reading their stories? I  had an idea - what about a machine learning application that would intake text, assign topics based on content, and allow her to search for unknown reporters based on topics they write about. She could then also see which other reporters write about similar topics, allowing her to find out about new reporters without actually searching through the news and reading all of their stories.
+Recently my girlfriend was hired as a media strategist in the northeast region for an environmental organization. She'd never worked in the NY area before, so she faced the tough task of learning about the different reporters specific to the area. Individuals who work in communications and public relations, often need to find reporters to write about issues that are important to their organization. But how could they find these new authors without actually reading their stories? I had an idea - what about a machine learning application that would intake text, assign topics based on content, and allow her to search for unknown reporters based on topics they write about. She could then also see which other reporters write about similar topics, allowing her to find out about new reporters without actually searching through the news and reading all of their stories.
 
 ## Approach
 * Data Collection
@@ -28,9 +28,9 @@ After gathering the data, several steps were taken to clean the data for topic a
 * Headline and lead were combined into one column for NLP.
 * Duplicate articles were removed.
 
-After cleaning, I ended up with 197,603 articles written by 12,703 different authors.
+After cleaning, I ended up with 197,603 articles written by 12,701 different authors.
 
-I then created a PostgreSQL database with author, article, and topic tables and imported all of the data from each article to the articles table.
+I then created a PostgreSQL database with author and article tables and imported all of the data from each article to the articles table.
 
 ## Topic Modeling
 I decided to use LDA to perform topic modeling. I started by using Gensim's LDA package, and I performed the following preprocessing tasks:
@@ -39,52 +39,71 @@ I decided to use LDA to perform topic modeling. I started by using Gensim's LDA 
 * Bigrams and trigrams were created.
 * Created word corpus.
 
-I randomly chose 8, 10, 16, and 20 topics, and I didn't get very good results. My best result was a coherence score of .26 using 10 topics.  You can see from the plot below (created using pyLDAvis) that the topics are overlapping one another, and there is very little clarity in the topics - the words don't allow for any kind of logical inference.
+I randomly chose 8, 10, 16, and 20 topics, and I didn't get very good results. My best result was a coherence score of .23 using 10 topics.  You can see from the plot below (created using pyLDAvis) that the topics are overlapping one another, and there is very little clarity in the topics - the words don't allow for any kind of logical inference.
 
 <iframe src = "plots/lda_gensim.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
     <a href="plots/lda_gensim.html">Try this link.</a>   
 </iframe>
 
-I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 22 topics, at which point the score leveled off.
+I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 36 topics, at which point the score leveled off.
  
-![alt text](plots/coherence_10-32.png "Coherence Scores")
+![alt text](plots/coherence_10-44.png "Coherence Scores")
 
-I then decided to try using the Mallet LDA package, created by UMASS and Gensim has a wrapper for it so that you can easily apply it on top of the Gensim pipeline.   I also made the following tweaks to preprocesing and recreated the corpus.
+So I then again tried the Gensome LDA package, this time with 36 topics, but I still had poor results.
+
+<iframe src = "plots/lda_gensim2.html" width = "1250" height = "875">
+    Sorry your browser does not support inline frames.
+    <a href="plots/lda_gensim2.html">Try this link.</a>   
+</iframe>
+
+So I decided to try using the Mallet LDA package, which is created by UMASS and Gensim has a wrapper for it so that you can easily apply it on top of the Gensim pipeline.   I also made the following tweaks to preprocesing and recreated the corpus.
 * Text was stemmed and lemmatized, but only nouns and verbs were included.  Adjectives and adverbs were ignored.
 * Extreme words were removed.  Words that occurred in more than 50% of documents were ignored, and words that were in less than 15 documents total were ignored.
 
-I then ran the model using the preprocessing settings, Mallet LDA, and 22 topics, and this produced extremely clear results.  The coherence score more than doubled to .57, and you can see the clarity in the topics below.
+I then ran the model using the preprocessing settings, Mallet LDA, and 36 topics, and this produced extremely clear results.  The coherence score more than doubled to .54, and you can see the clarity in the topics below.
 
-<iframe src = "plots/lda_mallet.html" width = "1250" height = "875">
+<iframe src = "plots/lda_mallet2.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
-    <a href="plots/lda_mallet.html">Try this link.</a>   
+    <a href="plots/lda_mallet2.html">Try this link.</a>   
 </iframe>
 
-It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 22 topics, and a sample of the words that were represented the most in that topic:
+It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 36 topics, and a sample of the words that had the most relevance to that topic:
 
-* **NY Local** - york, city, brooklyn, manhattan, water, home, park, resident...<br>
-* **Crime** - man, kill, police, attack, charge, death, fire, accuse, shoot...<br>
-* **Politics & Elections** - house, campaign, election, vote, donald_trump...<br>
-* **Foreign Affairs** - china, power, move, face, trade, russia, france...<br>
-* **War and Conflict** - country, fight, war, force, europe, fear, battle, syria...<br>
-* **Health & Science** - find, study, health, test, risk, drug...<br>
-* **News About News** - time, talk, news, week, report, discuss...<br>
-* **Tech & Business** - company, apple, amazon, facebook, investor...<br>
-* **Economy** - pay, raise, market, bank, deal, sale, money...<br>
-* **Labor** - make, open, job, line, spend, worker, growth, increase...<br>
-* **Travel** - home, food, offer, summer, hotel, tour, travel, island, holiday...<br>
-* **Fashion & Art** - show, art, museum, paris, designer, wear, collection...<br>
-* **Local Sports** - run, win, yankees, ranger, giant, series, loss, strike, series...<br>
-* **National Sports** - game, team, win, player, coach, world_cup, soccer...<br>
-* **World News** - world, year, britain, leave, office, begin, scandal...<br>
-* **Education** - school, program, student, question, college, university, child...<br>
-* **Music** - music, year, career, record, album, jazz, singer, band, pop...<br>
-* **Government** - call, leader, state, plan, senate, group, government...<br>
-* **Law & Judicial** - case, rule, court, law, charge, judge, accuse...<br>
-* **Film & TV** - film, review, series, movie, star, tv, show, night, host...<br>
-* **Theater** - theater, broadway, role, festival, review, dance, stage...<br>
-* **Family & Social** - woman, book, family, child, love, story, mother, son...
+* **Presidential Politics** - trump, president, policy, obama, donald_trump, administration...<br>
+* **Society** - women, change, america, man, power, focus, girl, society, history, nation...<br>
+* **Hope and Resilience** - give, lead, hope, lose, remain, end, start, struggle...<br>
+* **Performing Arts** - review, play, theater, festival, dance, work, stage, broadway...<br>
+* **Economy** - pay, bank, money, market, price, percent, cut, raise, cost, tax...<br>
+* **Technology** - service, company, video, technology, datum, facebook, apple, internet...<br>
+* **World News** - report, news, week, test, american, accord, happen, talk...<br>
+* **National News** - rule, plan, bill, car, law, power, limit, ban, effort, measure...<br>
+* **Court and Law** - case, court, judge, charge, accuse, lawyer, claim, trial...<br>
+* **Disaster** - home, people, move, fire, town, community, california, area, build...<br>
+* **Elections** - state, party, election, vote, republican, debate, campaign, race...<br>
+* **Conflict** - fight, war, group, force, country, battle, europe, fear, aid...<br>
+* **Business** - company, deal, business, sell, buy, offer, investment, firm...<br>
+* **Education** - school, student, program, college, learn, university, give...<br>
+* **Fashion** - show, fashion, designer, line, style, brand, collection...<br>
+* **Food** - food, restaurant, open, serve, bar, chef, cook, eat, drink, recipe...<br>
+* **Family** - life, family, love, friend, mother, live, story, son, father, boy...<br>
+* **Art** - work, art, artist, museum, history, exhibition, culture, master, gallery...<br>
+* **Transportation** - day, land, air, train, minute, flight, strike, storm, crash...<br>
+* **Announcements** - year, return, leave, end, meet, join, club, announce, replace...<br>
+* **Housing** - york, city, brooklyn, street, manhattan, park, building, project, queens...<br>
+* **Crime** - man, kill, police, death, attack, people, protest, shoot, arrest, officer...<br>
+* **Movements** - day, event, draw, celebrate, year, moment, summer, washington, king, march...<br>
+* **Government and Regulation** - face, challenge, call, issue, security, official, agency...<br>
+* **Music** - music, album, award, song, record, voice, singer, band, rock, concert...<br>
+* **Innovation** - world, make, thing, watch, idea, rise, surprise, mystery, decade...<br>
+* **Film and TV** - show, film, star, series, review, tv, role, actor, character, director...<br>
+* **Science and Research** - find, child, study, age, scientist, researcher, animal, scince...<br>
+* **Foreign Affairs** - china, leader, country, trade, government, russia, britain, israel...<br>
+* **Local Sports** - run, season, yankee, met, start, game, win, series, giant, baseball...<br>
+* **Travel** - plan, hotel, offer, travel, tour, trip, water, island, road, visit, mexico...<br>
+* **Football (and Futbol)** - team, game, player, win, coach, soccer, match, nfl, world_cup...<br>
+* **Health** - health, people, risk, drug, doctor, heart, care, expert, union, hospital...<br>
+* **Books and Writing** - book, write, story, writer, talk, life, author, discuss, cover...<br>
 
 ## Web Interface
 In order to search the database and see which topics are being assigned to each article and author, I created a flask application that integrates with the PostgreSQL database.  
@@ -104,5 +123,4 @@ To more easily visualize this, I clustered the 100 authors with the most article
 
 ## Next Steps
 I'd like to make this much more user-friendly, and in order to do that I need to make the flask search much smoother and more useful by including more information about each author, and by showing author-to-author search results to find authors that write about topics similar to one another.
-
-Additionally, I'd like to include news from many more major news outlets in order to make this more worthwhile.
+Additionally, the code needs to bewritten a way that is more modular, so that it can be more easily used for other applications, and I'd like to include news from many more major news outlets in order to make this more worthwhile.
