@@ -50,7 +50,7 @@ I then created a for loop to try different numbers of topics, and recorded the c
  
 ![alt text](plots/coherence_10-44.png "Coherence Scores")
 
-So I then again tried the Gensome LDA package, this time with 36 topics, but I still had poor results.
+So I then again tried the Gensim LDA package, this time with 36 topics, but I still had poor results.
 
 <iframe src = "plots/lda_gensim2.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
