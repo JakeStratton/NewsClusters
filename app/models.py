@@ -13,7 +13,7 @@ class Author(db.Model):
     dominant_topic_name = db.Column(db.String)
     total_articles = db.Column(db.Integer)
 
-    def __init__(self, author):
+    def __init__(self, author, author_id, dominant_topic_name, total_articles):
         """"""
         self.author = author
         self.author_id = author_id
@@ -44,7 +44,7 @@ class Article(db.Model):
         "articles", order_by=article_id), lazy=True)  #this might need to be changed to author_id
 
 
-    def __init__(self, headline_main, pub_date, source, type_of_material, web_url):
+    def __init__(self, headline_main, pub_date, source, type_of_material, web_url, topic_name):
         """"""
         self.headline_main = headline_main
         self.pub_date = pub_date

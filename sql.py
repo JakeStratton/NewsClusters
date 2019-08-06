@@ -42,7 +42,7 @@ query = '''
             topic_num_6 NUMERIC,
             topic_num_7 NUMERIC,
             topic_num_8 NUMERIC,
-            topic_num_9 NUMERIC,0
+            topic_num_9 NUMERIC,
             topic_num_10 NUMERIC,
             topic_num_11 NUMERIC,
             topic_num_12 NUMERIC,
@@ -54,12 +54,26 @@ query = '''
             topic_num_18 NUMERIC,
             topic_num_19 NUMERIC,
             topic_num_20 NUMERIC,
-            topic_num_21 NUMERIC
+            topic_num_21 NUMERIC,
+            topic_num_22 NUMERIC,
+            topic_num_23 NUMERIC,
+            topic_num_24 NUMERIC,
+            topic_num_25 NUMERIC,
+            topic_num_26 NUMERIC,
+            topic_num_27 NUMERIC,
+            topic_num_28 NUMERIC,
+            topic_num_29 NUMERIC,
+            topic_num_30 NUMERIC,
+            topic_num_31 NUMERIC,
+            topic_num_32 NUMERIC,
+            topic_num_33 NUMERIC
         );
         '''
 
 cur.execute(query)
 con.commit()
+                                                                
+
 
 #import data from csv
 query = '''
@@ -72,8 +86,9 @@ query = '''
         topic_num_5,topic_num_6,topic_num_7,topic_num_8,topic_num_9,topic_num_10,
         topic_num_11,topic_num_12,topic_num_13,topic_num_14,topic_num_15,
         topic_num_16,topic_num_17,topic_num_18,topic_num_19,topic_num_20,
-        topic_num_21)
-        FROM '/home/jake/data_science/NewsClusters/data/articles.csv' 
+        topic_num_21,topic_num_22,topic_num_23,topic_num_24,topic_num_25,topic_num_26,topic_num_27,
+        topic_num_28,topic_num_29,topic_num_30,topic_num_31,topic_num_32,topic_num_33)
+        FROM '/home/jake/data_science/capstones/NewsClusters/data/articles.csv' 
         DELIMITER ',' 
         CSV HEADER;
         '''

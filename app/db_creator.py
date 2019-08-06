@@ -38,6 +38,18 @@ class Author(Base):
     topic_num_19 = Column(Integer())
     topic_num_20 = Column(Integer())
     topic_num_21 = Column(Integer())
+    topic_num_22 = Column(Integer())
+    topic_num_23 = Column(Integer())
+    topic_num_24 = Column(Integer())
+    topic_num_25 = Column(Integer())
+    topic_num_26 = Column(Integer())
+    topic_num_27 = Column(Integer())
+    topic_num_28 = Column(Integer())
+    topic_num_29 = Column(Integer())
+    topic_num_30 = Column(Integer())
+    topic_num_31 = Column(Integer())
+    topic_num_32 = Column(Integer())
+    topic_num_33 = Column(Integer())
     total_articles = Column(Integer())
     topic_num_0_perc = Column(Integer())
     topic_num_1_perc = Column(Integer())
@@ -61,6 +73,18 @@ class Author(Base):
     topic_num_19_perc = Column(Integer())
     topic_num_20_perc = Column(Integer())
     topic_num_21_perc = Column(Integer())
+    topic_num_22_perc = Column(Integer())
+    topic_num_23_perc = Column(Integer())
+    topic_num_24_perc = Column(Integer())
+    topic_num_25_perc = Column(Integer())
+    topic_num_26_perc = Column(Integer())
+    topic_num_27_perc = Column(Integer())
+    topic_num_28_perc = Column(Integer())
+    topic_num_29_perc = Column(Integer())
+    topic_num_30_perc = Column(Integer())
+    topic_num_31_perc = Column(Integer())
+    topic_num_32_perc = Column(Integer())
+    topic_num_33_perc = Column(Integer())
     dominant_topic_num = Column(Integer())
     dominant_topic_name = Column(String())
     def __init__(self, author, author_id, dominant_topic_name, total_articles):
@@ -107,7 +131,7 @@ class Article(Base):
         "articles", order_by=article_id)) #this might need to be changed to author_id
 
 
-    def __init__(self, headline_main, pub_date, source, type_of_material, web_url):
+    def __init__(self, headline_main, pub_date, source, type_of_material, web_url, topic_name):
         """"""
         self.headline_main = headline_main
         self.pub_date = pub_date

@@ -58,7 +58,7 @@ bigram_mod = gensim.models.phrases.Phraser(bigram)
 trigram_mod = gensim.models.phrases.Phraser(trigram)
 
 # See trigram example
-print(trigram_mod[bigram_mod[data_words[0]]])
+print(trigram_mod[bigram_mod[data_words[200]]])
 
 # Define functions for stopwords, bigrams, trigrams and lemmatization
 def remove_stopwords(texts):
@@ -107,7 +107,7 @@ corpus = [id2word.doc2bow(text) for text in texts]
 # Build LDA model #1
 lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
                                            id2word=id2word,
-                                           num_topics=22, 
+                                           num_topics=34, 
                                            random_state=1,
                                            update_every=1,
                                            chunksize=500,
@@ -127,7 +127,7 @@ lda_model2 = gensim.models.ldamodel.LdaModel(corpus=corpus,
 '''
 
 # Print the Keyword in the 10 topics
-pprint(lda_model.print_topics())
+pprint(lda_model.print_topics(num_topics=34))
 doc_lda = lda_model[corpus]
 
 # Compute Perplexity
@@ -147,7 +147,7 @@ pyLDAvis.save_html(vis, 'lda.html')
 
 # try using mallets LDA - gensim has a wrapper to allow it to be buuilt on top of the gensim lda
 mallet_path = '/home/jake/data_science/mallet/mallet-2.0.8/bin/mallet' 
-ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=22, id2word=id2word)
+ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=34, id2word=id2word)
 
 # Show Topics from mallet
 pprint(ldamallet.show_topics(formatted=False))
@@ -189,11 +189,11 @@ def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
 # Can take a long time to run.
 model_list, coherence_values = compute_coherence_values(dictionary=id2word, 
                                                         corpus=corpus, texts=data_lemmatized, 
-                                                        start=10, limit=41, step=2)
+                                                        start=10, limit=45, step=2)
 
 #plot results of the multiple mallet topic tries
 # Show graph
-limit=41; start=10; step=2;
+limit=45; start=10; step=2;
 x = range(start, limit, step)
 plt.plot(x, coherence_values)
 plt.title('Coherence Score per Number of Topics')
@@ -207,12 +207,12 @@ for m, cv in zip(x, coherence_values):
     print("Num Topics =", m, " has Coherence Value of", round(cv, 4))
 
 # Select the model and print the topics
-optimal_model = model_list[6] #model 6 is the best (22 topics)
+optimal_model = model_list[12] #model 12 is the best (13th listed in the 34 topics)
 model_topics = optimal_model.show_topics(formatted=False)
-pprint(optimal_model.print_topics(num_words=20))
+pprint(optimal_model.print_topics(num_topics=34, num_words=20))
 
-#create a table to showwhich topic applies to each document
-def format_topics_sentences(ldamodel=lda_model, corpus=corpus, texts=data):
+#create a table to show dominant topic for each document
+def format_topics_sentences(ldamodel=optimal_model, corpus=corpus, texts=data):
     # Init output
     sent_topics_df = pd.DataFrame()
 
@@ -265,11 +265,15 @@ df_topics.reset_index(level=0, inplace=True)
 df_topics.columns = ['topic', 'topic_keywords', 'num_docs', 'percent_docs']
 
 #create topic names (manually inferred)
-topic_names = ['NY Local', 'Politics and Elections', 'Foreign Affairs',
-                'Health and Science', 'War and Conflict', 'News about News', 
-                'Travel', 'Technology', 'Fashion', 'Local Sports', 'National Sports',
-                'Education', 'Music', 'Economy', 'Government', 'Law', 'Labor', 
-                'Crime', 'World News', 'Film', 'Theater', 'Social']
+topic_names = ['Presidential Politics', 'Society', 'Hope and Resilience',
+                'Performing Arts', 'Economy', 'Technology', 'World News', 
+                'National News', 'Court and Law', 'Disaster', 'Elections', 
+                'Conflict', 'Business', 'Education', 'Fashion', 
+                'Food', 'Family', 'Art', 'Transportation', 
+                'Announcements', 'Housing', 'Crime', 'Movements',
+                'Government and Regulation', 'Music', 'Innovation', 'Film and TV',
+                'Science and Research', 'Foreign Affairs', 'Local Sports', 'Travel',
+                'Football (and Futbol)', 'Health', 'Books']
 
 #add topic names to articles df and save
 mydict = {v: k for v, k in enumerate(topic_names)} 
@@ -304,7 +308,7 @@ df_authors = df_articles[['author_id', 'byline_person_0_firstname', 'byline_pers
 df_authors = df_authors.drop_duplicates().set_index('author_id')
 df_authors.reset_index(level=0, inplace=True)
 df_authors_sums = df_articles.groupby(['author_id']).sum()
-df_authors_sums = df_authors_sums.drop(['Unnamed: 0',  'Document_No',  'Topic_Perc_Contrib',  'topic_num'], axis=1) 
+df_authors_sums = df_authors_sums.drop(['Document_No',  'Topic_Perc_Contrib',  'topic_num'], axis=1) 
 df_authors_sums.reset_index(level=0, inplace=True)
 df_authors = df_authors.set_index('author_id').join(df_authors_sums.set_index('author_id'))
 df_authors = df_authors.dropna(axis='rows')
@@ -331,8 +335,20 @@ df_authors['topic_num_16_perc'] = df_authors['topic_num_16'] / df_authors['total
 df_authors['topic_num_17_perc'] = df_authors['topic_num_17'] / df_authors['total_articles'] 
 df_authors['topic_num_18_perc'] = df_authors['topic_num_18'] / df_authors['total_articles'] 
 df_authors['topic_num_19_perc'] = df_authors['topic_num_19'] / df_authors['total_articles'] 
-df_authors['topic_num_20_perc'] = df_authors['topic_num_20'] / df_authors['total_articles'] 
-df_authors['topic_num_21_perc'] = df_authors['topic_num_21'] / df_authors['total_articles'] 
+df_authors['topic_num_20_perc'] = df_authors['topic_num_20'] / df_authors['total_articles']
+df_authors['topic_num_21_perc'] = df_authors['topic_num_21'] / df_authors['total_articles']  
+df_authors['topic_num_22_perc'] = df_authors['topic_num_22'] / df_authors['total_articles']
+df_authors['topic_num_23_perc'] = df_authors['topic_num_23'] / df_authors['total_articles'] 
+df_authors['topic_num_24_perc'] = df_authors['topic_num_24'] / df_authors['total_articles'] 
+df_authors['topic_num_25_perc'] = df_authors['topic_num_25'] / df_authors['total_articles'] 
+df_authors['topic_num_26_perc'] = df_authors['topic_num_26'] / df_authors['total_articles'] 
+df_authors['topic_num_27_perc'] = df_authors['topic_num_27'] / df_authors['total_articles']
+df_authors['topic_num_28_perc'] = df_authors['topic_num_28'] / df_authors['total_articles']  
+df_authors['topic_num_29_perc'] = df_authors['topic_num_29'] / df_authors['total_articles'] 
+df_authors['topic_num_30_perc'] = df_authors['topic_num_30'] / df_authors['total_articles'] 
+df_authors['topic_num_31_perc'] = df_authors['topic_num_31'] / df_authors['total_articles'] 
+df_authors['topic_num_32_perc'] = df_authors['topic_num_32'] / df_authors['total_articles'] 
+df_authors['topic_num_33_perc'] = df_authors['topic_num_33'] / df_authors['total_articles'] 
 df_authors = df_authors.round(2) #round off for easy percentage reading
 
 #add dominant topic for each author
@@ -357,7 +373,19 @@ df_authors['dominant_topic'] = df_authors[['topic_num_0',
                                         'topic_num_18',
                                         'topic_num_19',
                                         'topic_num_20',
-                                        'topic_num_21'
+                                        'topic_num_21',
+                                        'topic_num_22',
+                                        'topic_num_23',
+                                        'topic_num_24',
+                                        'topic_num_25',
+                                        'topic_num_26',
+                                        'topic_num_27',
+                                        'topic_num_28',
+                                        'topic_num_29',
+                                        'topic_num_30',
+                                        'topic_num_31',
+                                        'topic_num_32',
+                                        'topic_num_33'
                                         ]].idxmax(axis=1)
 
 df_authors['dominant_topic'] = df_authors['dominant_topic'].str.replace('topic_num_', '')

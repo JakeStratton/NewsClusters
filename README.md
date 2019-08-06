@@ -41,12 +41,13 @@ I decided to use LDA to perform topic modeling. I started by using Gensim's LDA 
 
 I randomly chose 8, 10, 16, and 20 topics, and I didn't get very good results. My best result was a coherence score of .26 using 10 topics.  You can see from the plot below (created using pyLDAvis) that the topics are overlapping one another, and there is very little clarity in the topics - the words don't allow for any kind of logical inference.
 
-<iframe src = "/plots/lda_gensim.html" width = "1250" height = "875">
+<iframe src = "plots/lda_gensim.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
-    <a href="/plots/lda_mallet.html">Try this link.</a>   
+    <a href="plots/lda_gensim.html">Try this link.</a>   
 </iframe>
 
-I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 22 topics, at which point the score leveled off. 
+I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 22 topics, at which point the score leveled off.
+ 
 ![alt text](plots/coherence_10-32.png "Coherence Scores")
 
 I then decided to try using the Mallet LDA package, created by UMASS and Gensim has a wrapper for it so that you can easily apply it on top of the Gensim pipeline.   I also made the following tweaks to preprocesing and recreated the corpus.
@@ -55,9 +56,9 @@ I then decided to try using the Mallet LDA package, created by UMASS and Gensim 
 
 I then ran the model using the preprocessing settings, Mallet LDA, and 22 topics, and this produced extremely clear results.  The coherence score more than doubled to .57, and you can see the clarity in the topics below.
 
-<iframe src = "/plots/lda_mallet.html" width = "1250" height = "875">
+<iframe src = "plots/lda_mallet.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
-    <a href="/plots/lda_mallet.html">Try this link.</a>   
+    <a href="plots/lda_mallet.html">Try this link.</a>   
 </iframe>
 
 It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 22 topics, and a sample of the words that were represented the most in that topic:
