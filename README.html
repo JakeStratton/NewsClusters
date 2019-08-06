@@ -71,11 +71,11 @@
     <a href="plots/lda_gensim.html">Try this link.</a>   
 </iframe>
 
-<p>I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 36 topics, at which point the score leveled off.</p>
+<p>I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 34 topics, at which point the score leveled off.</p>
 
 <p><img src="plots/coherence_10-44.png" alt="alt text" title="Coherence Scores" /></p>
 
-<p>So I then again tried the Gensim LDA package, this time with 36 topics, but I still had poor results.</p>
+<p>So I then again tried the Gensim LDA package, this time with 34 topics, but I still had poor results.</p>
 
 <iframe src = "plots/lda_gensim2.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
@@ -90,14 +90,14 @@
 <li>Extreme words were removed.  Words that occurred in more than 50% of documents were ignored, and words that were in less than 15 documents total were ignored.</li>
 </ul>
 
-<p>I then ran the model using the preprocessing settings, Mallet LDA, and 36 topics, and this produced extremely clear results.  The coherence score more than doubled to .54, and you can see the clarity in the topics below.</p>
+<p>I then ran the model using the preprocessing settings, Mallet LDA, and 34 topics, and this produced extremely clear results.  The coherence score more than doubled to .54, and you can see the clarity in the topics below.</p>
 
 <iframe src = "plots/lda_mallet2.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
     <a href="plots/lda_mallet2.html">Try this link.</a>   
 </iframe>
 
-<p>It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 36 topics, and a sample of the words that had the most relevance to that topic:</p>
+<p>It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 34 topics, and a sample of the words that had the most relevance to that topic:</p>
 
 <ul>
 <li><strong>Presidential Politics</strong> - trump, president, policy, obama, donald_trump, administration...<br></li>

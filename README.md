@@ -46,11 +46,11 @@ I randomly chose 8, 10, 16, and 20 topics, and I didn't get very good results. M
     <a href="plots/lda_gensim.html">Try this link.</a>   
 </iframe>
 
-I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 36 topics, at which point the score leveled off.
+I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 34 topics, at which point the score leveled off.
  
 ![alt text](plots/coherence_10-44.png "Coherence Scores")
 
-So I then again tried the Gensim LDA package, this time with 36 topics, but I still had poor results.
+So I then again tried the Gensim LDA package, this time with 34 topics, but I still had poor results.
 
 <iframe src = "plots/lda_gensim2.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
@@ -61,14 +61,14 @@ So I decided to try using the Mallet LDA package, which is created by UMASS and 
 * Text was stemmed and lemmatized, but only nouns and verbs were included.  Adjectives and adverbs were ignored.
 * Extreme words were removed.  Words that occurred in more than 50% of documents were ignored, and words that were in less than 15 documents total were ignored.
 
-I then ran the model using the preprocessing settings, Mallet LDA, and 36 topics, and this produced extremely clear results.  The coherence score more than doubled to .54, and you can see the clarity in the topics below.
+I then ran the model using the preprocessing settings, Mallet LDA, and 34 topics, and this produced extremely clear results.  The coherence score more than doubled to .54, and you can see the clarity in the topics below.
 
 <iframe src = "plots/lda_mallet2.html" width = "1250" height = "875">
     Sorry your browser does not support inline frames.
     <a href="plots/lda_mallet2.html">Try this link.</a>   
 </iframe>
 
-It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 36 topics, and a sample of the words that had the most relevance to that topic:
+It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 34 topics, and a sample of the words that had the most relevance to that topic:
 
 * **Presidential Politics** - trump, president, policy, obama, donald_trump, administration...<br>
 * **Society** - women, change, america, man, power, focus, girl, society, history, nation...<br>
