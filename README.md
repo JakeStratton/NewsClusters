@@ -123,4 +123,4 @@ To more easily visualize this, I clustered the 100 authors with the most article
 
 ## Next Steps
 I'd like to make this much more user-friendly, and in order to do that I need to make the flask search much smoother and more useful by including more information about each author, and by showing author-to-author search results to find authors that write about topics similar to one another.
-Additionally, the code needs to bewritten a way that is more modular, so that it can be more easily used for other applications, and I'd like to include news from many more major news outlets in order to make this more worthwhile.
+Additionally, the code needs to be written in a way that is more modular, so that it can be more easily used for other applications, and I'd like to include news from many more major news outlets in order to make this more worthwhile.
