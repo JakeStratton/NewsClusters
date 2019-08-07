@@ -41,7 +41,7 @@ I decided to use LDA to perform topic modeling. I started by using Gensim's LDA 
 
 I randomly chose 8, 10, 16, and 20 topics, and I didn't get very good results. My best result was a coherence score of .23 using 10 topics.  You can see from the plot below (created using pyLDAvis) that the topics are overlapping one another, and there is very little clarity in the topics - the words don't allow for any kind of logical inference.
 
-<img src="presentation/gensim_10.png" alt="drawing" width="600"/>
+<img src="presentation/gensim_10.png" alt="drawing" width="440"/>
 
 
 I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 34 topics, at which point the score leveled off.
@@ -50,7 +50,7 @@ I then created a for loop to try different numbers of topics, and recorded the c
 
 So I then again tried the Gensim LDA package, this time with 34 topics, but I still had poor results.
 
-<img src="presentation/gensim_34.png" alt="drawing" width="600"/>
+<img src="presentation/gensim_34.png" alt="drawing" width="440"/>
 
 So I decided to try using the Mallet LDA package, which is created by UMASS and Gensim has a wrapper for it so that you can easily apply it on top of the Gensim pipeline.   I also made the following tweaks to preprocesing and recreated the corpus.
 * Text was stemmed and lemmatized, but only nouns and verbs were included.  Adjectives and adverbs were ignored.
@@ -58,7 +58,7 @@ So I decided to try using the Mallet LDA package, which is created by UMASS and 
 
 I then ran the model using the preprocessing settings, Mallet LDA, and 34 topics, and this produced extremely clear results.  The coherence score more than doubled to .54, and you can see the clarity in the topics below.
 
-<img src="presentation/mallet_34.png" alt="drawing" width="600"/>
+<img src="presentation/mallet_34.png" alt="drawing" width="440"/>
 
 It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 34 topics, and a sample of the words that had the most relevance to that topic:
 
