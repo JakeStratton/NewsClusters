@@ -100,14 +100,16 @@ It was extremely easy to infer human-useable terms to represent each topic.  Bel
 ## Web Interface
 In order to search the database and see which topics are being assigned to each article and author, I created a flask application that integrates with the PostgreSQL database.  
 I created a search function that allows you to search by keywords in the headline, or the name of the author, or by topic.<br>
-![alt text](presentation/john_search_preresults.png "Proof Dogs")   ...  ![alt text](presentation/dogs_preresults.png "Proof Dogs")
+<img src="presentation/john_search_preresults.png" alt="drawing" width="200"/>  ...  <img src="presentation/dogs_preresults.png" alt="drawing" width="200"/>
 
 ## Results
 You can see how accurate the topic modeling is.  This results page shows the dominant topic for srticles written by someone with "john" in their name.  If you read through the headlines of each article, you can see that the assigned topic is extremely accurate.
-![alt text](presentation/john_search.png "Proof Dogs")
+
+<img src="presentation/john_search.png" alt="drawing" width="440"/>
 
 Here are some of the results when I searched for "dogs" in the headline.  If you read the headline, you can see that the topics are accurately describing the content of each article.
-![alt text](presentation/proof_dogs.png "Proof Dogs")
+
+<img src="presentation/proof_dogs.png" alt="drawing" width="440"/>
 
 ## Clustering
 I then created an authors table in the PostgreSQL database, and added a column for each topic, and  entered the percentage of each author's articles for the column in which that topic was the dominant topic.  I was able to then use hierarchical LDA clustering to group authors based on their distribution of topics.
