@@ -45,8 +45,8 @@ I randomly chose 8, 10, 16, and 20 topics, and I didn't get very good results. M
 
 
 I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 34 topics, at which point the score leveled off.
- 
-![alt text](plots/coherence_10-44.png "Coherence Scores")
+
+<img src="plots/coherence_10-44.png" alt="drawing" width="440"/>
 
 So I then again tried the Gensim LDA package, this time with 34 topics, but I still had poor results.
 
