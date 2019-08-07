@@ -1,135 +1,398 @@
-#gensim
-import gensim 
-from gensim.utils import simple_preprocess 
-from gensim.parsing.preprocessing import STOPWORDS
-from gensim.utils import simple_preprocess
+import re
+import numpy as np
+import pandas as pd
+from pprint import pprint
+
+# Gensim
+import gensim
 import gensim.corpora as corpora
+from gensim.utils import simple_preprocess
 from gensim.models import CoherenceModel
+
+# spacy for lemmatization
+import spacy
 
 # Plotting tools
 import pyLDAvis
-import pyLDAvis.gensim  
+import pyLDAvis.gensim  # don't skip this
 import matplotlib.pyplot as plt
 
-#nltk
-import nltk
-from nltk.stem import WordNetLemmatizer, SnowballStemmer 
-from nltk.stem.porter import * 
-nltk.download('wordnet') 
+# Enable logging for gensim - optional
+import logging
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.ERROR)
 
-#other
-import numpy as np 
-import pandas as pd
-import re
-from pprint import pprint
+# NLTK Stop words
+from nltk.corpus import stopwords
+stop_words = stopwords.words('english')
+stop_words.extend(['say', 'says', 'said', 'year', 'time', 'way',
+                        'week', 'make', 'thursday', 'monday', 'tuesday', 'wednesday', 'friday'  ])
 
+#show all padas columns for readability
+pd.set_option('display.max_columns', None)
 
-#load data
+#import data
 df = pd.read_csv('data/articles_2014-2018_clean.csv')
+df = df[['text', 'article_id', 'author_id']]
+df.head()
 
 #turn text column back in to list (pandas load is making it a string)
-df['text'] = df['text'].str.replace('[','').str.replace(']', '')
-df['text'] = df['text'].map(lambda x: [x])
+df['text'] = df['text'].str.replace('[','').str.replace(']', '').str.replace("'", "")
+#df['text'] = df['text'].map(lambda x: [x])
+
+# Convert to list
+data = df['text'].values.tolist()
+
+#tokenize
+def sent_to_words(sentences):
+    for sentence in sentences:
+        yield(gensim.utils.simple_preprocess(str(sentence), deacc=True))  # deacc=True removes punctuations
+
+data_words = list(sent_to_words(data))
+
+# Build the bigram and trigram models
+bigram = gensim.models.Phrases(data_words, min_count=5, threshold=100) # higher threshold fewer phrases.
+trigram = gensim.models.Phrases(bigram[data_words], threshold=100)  
+
+# Faster way to get a sentence clubbed as a trigram/bigram
+bigram_mod = gensim.models.phrases.Phraser(bigram)
+trigram_mod = gensim.models.phrases.Phraser(trigram)
+
+# See trigram example
+print(trigram_mod[bigram_mod[data_words[200]]])
+
+# Define functions for stopwords, bigrams, trigrams and lemmatization
+def remove_stopwords(texts):
+    return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
+
+def make_bigrams(texts):
+    return [bigram_mod[doc] for doc in texts]
+
+def make_trigrams(texts):
+    return [trigram_mod[bigram_mod[doc]] for doc in texts]
+
+def lemmatization(texts, allowed_postags=['NOUN', 'VERB']):  #, 'ADJ', 'VERB', 'ADV'
+    """https://spacy.io/api/annotation"""
+    texts_out = []
+    for sent in texts:
+        doc = nlp(" ".join(sent)) 
+        texts_out.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
+    return texts_out
+
+# Remove Stop Words
+data_words_nostops = remove_stopwords(data_words)
+
+# Form Bigrams
+data_words_bigrams = make_bigrams(data_words_nostops)
+
+# Initialize spacy 'en' model, keeping only tagger component (for efficiency)
+# python3 -m spacy download en
+nlp = spacy.load('en', disable=['parser', 'ner'])
+
+# Do lemmatization keeping only noun, vb
+data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'VERB' ]) #'ADV', 'ADJ'
+
+# Create Dictionary and remove extremely common and rare words
+id2word = corpora.Dictionary(data_lemmatized)
+id2word.filter_extremes(no_below=15, no_above=0.5, keep_n= 100000)
+
+# Create Corpus
+texts = data_lemmatized
+
+# Term Document Frequency
+corpus = [id2word.doc2bow(text) for text in texts]
+
+# Human readable format of corpus (term-frequency)
+[[(id2word[id], freq) for id, freq in cp] for cp in corpus[:1]]
+
+# Build LDA model #1
+lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
+                                           id2word=id2word,
+                                           num_topics=26, 
+                                           random_state=1,
+                                           update_every=1,
+                                           chunksize=500,
+                                           passes=10,
+                                           alpha='auto')
 
 '''
-def main():
-    processed_docs = process_text(df['text'])
-    dictionary = gensim.corpora.Dictionary(processed_docs)
-    bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
-    lda_model = make_lda_model()
-
-    return None
+# Build LDA model #2
+lda_model2 = gensim.models.ldamodel.LdaModel(corpus=corpus,
+                                           id2word=id2word,
+                                           num_topics=16, 
+                                           random_state=1,
+                                           update_every=1,
+                                           chunksize=500,
+                                           passes=10,
+                                           alpha='auto')
 '''
-
-## Data Preprocessing
-# Tokenize and lemmatize and stem functions
-def lemmatize_stemming(text): 
-    stemmer = SnowballStemmer("english")
-    return stemmer.stem(WordNetLemmatizer().lemmatize(text, pos='v')) 
-
-def preprocess(text):
-    more_stop_words = ['says', 'york', 'year', 'time', 'said', 'say']
-    result=[] 
-    for token in gensim.utils.simple_preprocess(text):
-        if token not in gensim.parsing.preprocessing.STOPWORDS and token not in more_stop_words and len(token) > 3:
-            result.append(lemmatize_stemming(token))
-    return result 
-
-
-# process text
-def process_text(column):
-    processed_docs = []
-    for i in range(len(column)):
-        for doc in column[i]:
-            processed_docs.append(preprocess(doc))
-
-    return processed_docs
-
-
-# process the documents
-processed_docs = process_text(df['text'])
-
-##Bag of words on the dataset
-
-#Create a dictionary from 'processed_docs' containing the number of times a word appears 
-#in the training set using gensim.corpora
-#filter out extreme words
-dictionary = gensim.corpora.Dictionary(processed_docs)
-dictionary.filter_extremes(no_below=15, no_above=0.5, keep_n= 100000)
-
-#Create the Bag-of-words model for each document i.e for each document
-bow_corpus = [dictionary.doc2bow(doc) for doc in processed_docs]
-
-
-#Use this function to show the words in the corpus and how many times they occur in a given document
-def show_words(doc_num):
-  bow_doc = bow_corpus[doc_num]
-  for i in range(len(bow_doc)):
-      print("Word {} (\"{}\") appears {} time.".format(bow_doc[i][0], 
-                                                dictionary[bow_doc[i][0]], 
-  bow_doc[i][1]))
-
-
-# Build LDA model
-def make_lda_model():
-  lda_model = gensim.models.ldamodel.LdaModel(corpus=bow_corpus,
-                                            id2word=dictionary,
-                                            num_topics=10, 
-                                            random_state=1,
-                                            update_every=1,
-                                            chunksize=500,
-                                            passes=10,
-                                            alpha='auto')
-
-  return lda_model
-
 
 # Print the Keyword in the 10 topics
-def print_topics(lda_model):
-  pprint(lda_model.print_topics())
-  doc_lda = lda_model[bow_corpus]
-
-  return None
-
+pprint(lda_model.print_topics(num_topics=26))
+doc_lda = lda_model[corpus]
 
 # Compute Perplexity
 print('\nPerplexity: ', lda_model.log_perplexity(corpus))  # a measure of how good the model is. lower the better.
 
 # Compute Coherence Score
-coherence_model_lda = CoherenceModel(model=lda_model, texts=processed_docs, dictionary=dictionary, coherence='c_v')
+coherence_model_lda = CoherenceModel(model=lda_model, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
 coherence_lda = coherence_model_lda.get_coherence()
-print('\nCoherence Score: ', coherence_lda)
-
- 
+print('\nCoherence Score: ', coherence_lda) 
 
 
+# Visualize the topics
+pyLDAvis.disable_notebook()
+vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+#save as HTML
+pyLDAvis.save_html(vis, 'lda_26.html')
+
+# try using mallets LDA - gensim has a wrapper to allow it to be buuilt on top of the gensim lda
+mallet_path = '/home/jake/data_science/mallet/mallet-2.0.8/bin/mallet' 
+ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=26, id2word=id2word)
+
+# Show Topics from mallet
+pprint(ldamallet.show_topics(formatted=False))
+
+# Compute Coherence Score from mallet
+coherence_model_ldamallet = CoherenceModel(model=ldamallet, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
+coherence_ldamallet = coherence_model_ldamallet.get_coherence()
+print('\nCoherence Score: ', coherence_ldamallet)
 
 
+#use this to determine how many topics to use.  it loops through and tries the model many different times
+def compute_coherence_values(dictionary, corpus, texts, limit, start=2, step=3):
+    """
+    Compute c_v coherence for various number of topics
+
+    Parameters:
+    ----------
+    dictionary : Gensim dictionary
+    corpus : Gensim corpus
+    texts : List of input texts
+    limit : Max num of topics
+
+    Returns:
+    -------
+    model_list : List of LDA topic models
+    coherence_values : Coherence values corresponding to the LDA model with respective number of topics
+    """
+    coherence_values = []
+    model_list = []
+    for num_topics in range(start, limit, step):
+        model = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=num_topics, id2word=id2word)
+        model_list.append(model)
+        coherencemodel = CoherenceModel(model=model, texts=texts, dictionary=dictionary, coherence='c_v')
+        coherence_values.append(coherencemodel.get_coherence())
+
+    return model_list, coherence_values
+
+#run the above compute coherence values to find the best
+# Can take a long time to run.
+model_list, coherence_values = compute_coherence_values(dictionary=id2word, 
+                                                        corpus=corpus, texts=data_lemmatized, 
+                                                        start=10, limit=45, step=2)
+
+#plot results of the multiple mallet topic tries
+# Show graph
+limit=45; start=10; step=2;
+x = range(start, limit, step)
+plt.plot(x, coherence_values)
+plt.title('Coherence Score per Number of Topics')
+plt.xlabel("Num Topics")
+plt.ylabel("Coherence score")
+plt.legend(("coherence_values"), loc='best')
+plt.show()
+
+# Print the coherence scores
+for m, cv in zip(x, coherence_values):
+    print("Num Topics =", m, " has Coherence Value of", round(cv, 4))
+
+# Select the model and print the topics
+optimal_model = model_list[0] #model 0 is the best (only one in list)
+model_topics = optimal_model.show_topics(formatted=False)
+pprint(optimal_model.print_topics(num_topics=26, num_words=20))
+
+#create a table to show dominant topic for each document
+def format_topics_sentences(ldamodel=optimal_model, corpus=corpus, texts=data):
+    # Init output
+    sent_topics_df = pd.DataFrame()
+
+    # Get main topic in each document
+    for i, row in enumerate(ldamodel[corpus]):
+        row = sorted(row, key=lambda x: (x[1]), reverse=True)
+        # Get the Dominant topic, Perc Contribution and Keywords for each document
+        for j, (topic_num, prop_topic) in enumerate(row):
+            if j == 0:  # => dominant topic
+                wp = ldamodel.show_topic(topic_num)
+                topic_keywords = ", ".join([word for word, prop in wp])
+                sent_topics_df = sent_topics_df.append(pd.Series([int(topic_num), round(prop_topic,4), topic_keywords]), ignore_index=True)
+            else:
+                break
+    sent_topics_df.columns = ['Dominant_Topic', 'Perc_Contribution', 'Topic_Keywords']
+
+    # Add original text to the end of the output
+    contents = pd.Series(texts)
+    sent_topics_df = pd.concat([sent_topics_df, contents], axis=1)
+    return(sent_topics_df)
 
 
+df_topic_sents_keywords = format_topics_sentences(ldamodel=optimal_model, corpus=corpus, texts=data)
 
-'''
-if __name__== "__main__":
-  main()
-'''
+# create df of each article with associated dominant topic
+df_dominant_topic = df_topic_sents_keywords.reset_index()
+df_dominant_topic.columns = ['Document_No', 'Dominant_Topic', 'Topic_Perc_Contrib', 'Keywords', 'Text']
 
+
+#add topics to articles df and clean up unneded columns.
+df_articles = pd.read_csv('data/articles_2014-2018_clean.csv')
+df_articles = pd.concat([df_articles, df_dominant_topic], axis=1, sort=False)
+df_articles = df_articles.drop(['Text', 'Unnamed: 0'], axis=1)
+
+
+#create topics df
+# Number of Documents for Each Topic
+topic_counts = df_topic_sents_keywords['Dominant_Topic'].value_counts().sort_index() 
+# Percentage of Documents for Each Topic
+topic_contribution = round(topic_counts/topic_counts.sum(), 4).sort_index() 
+# Topic Number and Keywords
+topic_num_keywords = df_topic_sents_keywords[['Dominant_Topic', 'Topic_Keywords']]
+topic_num_keywords = topic_num_keywords.drop_duplicates(subset ="Dominant_Topic").set_index('Dominant_Topic')
+topic_num_keywords = topic_num_keywords.sort_index()
+# Concatenate 
+df_topics = pd.concat([topic_num_keywords, topic_counts, topic_contribution], axis=1, sort=False)
+# Change Column names and re-index to get topic num as a column
+df_topics.columns = ['topic_keywords', 'num_docs', 'percent_docs']
+df_topics.reset_index(level=0, inplace=True) 
+df_topics.columns = ['topic', 'topic_keywords', 'num_docs', 'percent_docs']
+
+#create topic names (manually inferred)
+topic_names = ['Presidential Politics', 'Society', 'Hope and Resilience',
+                'Performing Arts', 'Economy', 'Technology', 'World News', 
+                'National News', 'Court and Law', 'Disaster', 'Elections', 
+                'Conflict', 'Business', 'Education', 'Fashion', 
+                'Food', 'Family', 'Art', 'Transportation', 
+                'Announcements', 'Housing', 'Crime', 'Movements',
+                'Government and Regulation', 'Music', 'Innovation', 'Film and TV',
+                'Science and Research', 'Foreign Affairs', 'Local Sports', 'Travel',
+                'Football (and Futbol)', 'Health', 'Books']
+
+#add topic names to articles df and save
+mydict = {v: k for v, k in enumerate(topic_names)} 
+df_articles['topic_name'] = df_articles['Dominant_Topic'].map(mydict) 
+
+
+#insert topic names in to topics df
+topic_names = pd.Series(topic_names)
+df_topics = pd.concat([df_topics, topic_names], axis=1, sort=False)
+df_topics.columns = ['topic', 'topic_keywords', 'num_docs', 'percent_docs', 'topic_name']
+#save topics df
+df_topics.to_csv('data/topics.csv')
+
+#OHE the dominant topic column
+df_articles['Dominant_Topic'] = df_articles['Dominant_Topic'].astype('int16')
+df_articles['topic_num'] = df_articles['Dominant_Topic']
+df_articles = pd.get_dummies(df_articles, prefix=['topic_num'], columns=['Dominant_Topic'])  
+#save df_articles
+df_articles.to_csv('data/articles_26.csv')
+
+#convert mallet model to gensim in order to display using pyLDAvis
+lda_model_mallet = gensim.models.wrappers.ldamallet.malletmodel2ldamodel(ldamallet)
+
+# Visualize the mallet LDA topics
+pyLDAvis.disable_notebook()
+mallet_vis = pyLDAvis.gensim.prepare(lda_model_mallet, corpus, id2word)
+#save as HTML
+pyLDAvis.save_html(mallet_vis, 'lda_mallet_26.html')
+
+#create authors df with counts of articles in each topic
+df_authors = df_articles[['author_id', 'byline_person_0_firstname', 'byline_person_0_middlename', 'byline_person_0_lastname', 'author']]
+df_authors = df_authors.drop_duplicates().set_index('author_id')
+df_authors.reset_index(level=0, inplace=True)
+df_authors_sums = df_articles.groupby(['author_id']).sum()
+df_authors_sums = df_authors_sums.drop(['Document_No',  'Topic_Perc_Contrib',  'topic_num'], axis=1) 
+df_authors_sums.reset_index(level=0, inplace=True)
+df_authors = df_authors.set_index('author_id').join(df_authors_sums.set_index('author_id'))
+df_authors = df_authors.dropna(axis='rows')
+
+#add percentage columns to authors df #find a more pythonic way to do this!!!!!
+df_authors['total_articles'] = df_authors.sum(axis=1)  #total articles for each author
+df_authors['topic_num_0_perc'] = df_authors['topic_num_0'] / df_authors['total_articles'] 
+df_authors['topic_num_1_perc'] = df_authors['topic_num_1'] / df_authors['total_articles'] 
+df_authors['topic_num_2_perc'] = df_authors['topic_num_2'] / df_authors['total_articles'] 
+df_authors['topic_num_3_perc'] = df_authors['topic_num_3'] / df_authors['total_articles'] 
+df_authors['topic_num_4_perc'] = df_authors['topic_num_4'] / df_authors['total_articles'] 
+df_authors['topic_num_5_perc'] = df_authors['topic_num_5'] / df_authors['total_articles'] 
+df_authors['topic_num_6_perc'] = df_authors['topic_num_6'] / df_authors['total_articles'] 
+df_authors['topic_num_7_perc'] = df_authors['topic_num_7'] / df_authors['total_articles'] 
+df_authors['topic_num_8_perc'] = df_authors['topic_num_8'] / df_authors['total_articles'] 
+df_authors['topic_num_9_perc'] = df_authors['topic_num_9'] / df_authors['total_articles'] 
+df_authors['topic_num_10_perc'] = df_authors['topic_num_10'] / df_authors['total_articles'] 
+df_authors['topic_num_11_perc'] = df_authors['topic_num_11'] / df_authors['total_articles'] 
+df_authors['topic_num_12_perc'] = df_authors['topic_num_12'] / df_authors['total_articles'] 
+df_authors['topic_num_13_perc'] = df_authors['topic_num_13'] / df_authors['total_articles'] 
+df_authors['topic_num_14_perc'] = df_authors['topic_num_14'] / df_authors['total_articles'] 
+df_authors['topic_num_15_perc'] = df_authors['topic_num_15'] / df_authors['total_articles'] 
+df_authors['topic_num_16_perc'] = df_authors['topic_num_16'] / df_authors['total_articles'] 
+df_authors['topic_num_17_perc'] = df_authors['topic_num_17'] / df_authors['total_articles'] 
+df_authors['topic_num_18_perc'] = df_authors['topic_num_18'] / df_authors['total_articles'] 
+df_authors['topic_num_19_perc'] = df_authors['topic_num_19'] / df_authors['total_articles'] 
+df_authors['topic_num_20_perc'] = df_authors['topic_num_20'] / df_authors['total_articles']
+df_authors['topic_num_21_perc'] = df_authors['topic_num_21'] / df_authors['total_articles']  
+df_authors['topic_num_22_perc'] = df_authors['topic_num_22'] / df_authors['total_articles']
+df_authors['topic_num_23_perc'] = df_authors['topic_num_23'] / df_authors['total_articles'] 
+df_authors['topic_num_24_perc'] = df_authors['topic_num_24'] / df_authors['total_articles'] 
+df_authors['topic_num_25_perc'] = df_authors['topic_num_25'] / df_authors['total_articles'] 
+df_authors['topic_num_26_perc'] = df_authors['topic_num_26'] / df_authors['total_articles'] 
+df_authors['topic_num_27_perc'] = df_authors['topic_num_27'] / df_authors['total_articles']
+df_authors['topic_num_28_perc'] = df_authors['topic_num_28'] / df_authors['total_articles']  
+df_authors['topic_num_29_perc'] = df_authors['topic_num_29'] / df_authors['total_articles'] 
+df_authors['topic_num_30_perc'] = df_authors['topic_num_30'] / df_authors['total_articles'] 
+df_authors['topic_num_31_perc'] = df_authors['topic_num_31'] / df_authors['total_articles'] 
+df_authors['topic_num_32_perc'] = df_authors['topic_num_32'] / df_authors['total_articles'] 
+df_authors['topic_num_33_perc'] = df_authors['topic_num_33'] / df_authors['total_articles'] 
+df_authors = df_authors.round(2) #round off for easy percentage reading
+
+#add dominant topic for each author
+df_authors['dominant_topic'] = df_authors[['topic_num_0',
+                                        'topic_num_1',
+                                        'topic_num_2',
+                                        'topic_num_3',
+                                        'topic_num_4',
+                                        'topic_num_5',
+                                        'topic_num_6',
+                                        'topic_num_7',
+                                        'topic_num_8',
+                                        'topic_num_9',
+                                        'topic_num_10',
+                                        'topic_num_11',
+                                        'topic_num_12',
+                                        'topic_num_13',
+                                        'topic_num_14',
+                                        'topic_num_15',
+                                        'topic_num_16',
+                                        'topic_num_17',
+                                        'topic_num_18',
+                                        'topic_num_19',
+                                        'topic_num_20',
+                                        'topic_num_21',
+                                        'topic_num_22',
+                                        'topic_num_23',
+                                        'topic_num_24',
+                                        'topic_num_25',
+                                        'topic_num_26',
+                                        'topic_num_27',
+                                        'topic_num_28',
+                                        'topic_num_29',
+                                        'topic_num_30',
+                                        'topic_num_31',
+                                        'topic_num_32',
+                                        'topic_num_33'
+                                        ]].idxmax(axis=1)
+
+df_authors['dominant_topic'] = df_authors['dominant_topic'].str.replace('topic_num_', '')
+df_authors['dominant_topic'] = df_authors['dominant_topic'].astype('int16')
+
+#add topic names to authors df and save
+mydict = {v: k for v, k in enumerate(topic_names)} 
+df_authors['dominant_topic_name'] = df_authors['dominant_topic'].map(mydict) 
+df_authors = df_authors.reset_index()
+df_authors.to_csv('data/authors_26.csv')

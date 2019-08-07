@@ -41,10 +41,8 @@ I decided to use LDA to perform topic modeling. I started by using Gensim's LDA 
 
 I randomly chose 8, 10, 16, and 20 topics, and I didn't get very good results. My best result was a coherence score of .23 using 10 topics.  You can see from the plot below (created using pyLDAvis) that the topics are overlapping one another, and there is very little clarity in the topics - the words don't allow for any kind of logical inference.
 
-<iframe src = "plots/lda_gensim.html" width = "1250" height = "875">
-    Sorry your browser does not support inline frames.
-    <a href="plots/lda_gensim.html">Try this link.</a>   
-</iframe>
+![alt text](presentation/gensim_10.png "Coherence Scores")
+
 
 I then created a for loop to try different numbers of topics, and recorded the coherence score for each number of topics, and I discovered that there was a significant increase in coherence score until about 34 topics, at which point the score leveled off.
  
@@ -52,10 +50,7 @@ I then created a for loop to try different numbers of topics, and recorded the c
 
 So I then again tried the Gensim LDA package, this time with 34 topics, but I still had poor results.
 
-<iframe src = "plots/lda_gensim2.html" width = "1250" height = "875">
-    Sorry your browser does not support inline frames.
-    <a href="plots/lda_gensim2.html">Try this link.</a>   
-</iframe>
+![alt text](presentation/gensim_34.png "Mallet 34 topics")
 
 So I decided to try using the Mallet LDA package, which is created by UMASS and Gensim has a wrapper for it so that you can easily apply it on top of the Gensim pipeline.   I also made the following tweaks to preprocesing and recreated the corpus.
 * Text was stemmed and lemmatized, but only nouns and verbs were included.  Adjectives and adverbs were ignored.
@@ -63,10 +58,7 @@ So I decided to try using the Mallet LDA package, which is created by UMASS and 
 
 I then ran the model using the preprocessing settings, Mallet LDA, and 34 topics, and this produced extremely clear results.  The coherence score more than doubled to .54, and you can see the clarity in the topics below.
 
-<iframe src = "plots/lda_mallet2.html" width = "1250" height = "875">
-    Sorry your browser does not support inline frames.
-    <a href="plots/lda_mallet2.html">Try this link.</a>   
-</iframe>
+![alt text](presentation/mallet_34.png "Mallet 34 topics")
 
 It was extremely easy to infer human-useable terms to represent each topic.  Below are the terms I used to describe each of the 34 topics, and a sample of the words that had the most relevance to that topic:
 
@@ -107,10 +99,15 @@ It was extremely easy to infer human-useable terms to represent each topic.  Bel
 
 ## Web Interface
 In order to search the database and see which topics are being assigned to each article and author, I created a flask application that integrates with the PostgreSQL database.  
-I created a search function that allows you to search by keywords in the headline, or the name of the author, or by topic.
+I created a search function that allows you to search by keywords in the headline, or the name of the author, or by topic.<br>
+![alt text](presentation/john_search_preresults.png "Proof Dogs")   ...  ![alt text](presentation/dogs_preresults.png "Proof Dogs")
+
+## Results
+You can see how accurate the topic modeling is.  This results page shows the dominant topic for srticles written by someone with "john" in their name.  If you read through the headlines of each article, you can see that the assigned topic is extremely accurate.
+![alt text](presentation/john_search.png "Proof Dogs")
 
 Here are some of the results when I searched for "dogs" in the headline.  If you read the headline, you can see that the topics are accurately describing the content of each article.
-![alt text](plots/proof_dogs.png "Proof Dogs")
+![alt text](presentation/proof_dogs.png "Proof Dogs")
 
 ## Clustering
 I then created an authors table in the PostgreSQL database, and added a column for each topic, and  entered the percentage of each author's articles for the column in which that topic was the dominant topic.  I was able to then use hierarchical LDA clustering to group authors based on their distribution of topics.
