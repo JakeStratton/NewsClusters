@@ -121,5 +121,8 @@ To more easily visualize this, I clustered the 100 authors with the most article
 ![alt text](plots/dendro_zoomed.png "Proof")
 
 ## Next Steps
-I'd like to make this much more user-friendly, and in order to do that I need to make the flask search much smoother and more useful by including more information about each author, and by showing author-to-author search results to find authors that write about topics similar to one another.
-Additionally, the code needs to be written in a way that is more modular, so that it can be more easily used for other applications, and I'd like to include news from many more major news outlets in order to make this more worthwhile.
+
+* Improve appearance and user-friendliness of flask app
+* Add more search options to flask app, such as author to author searches and results, and search by topic. 
+* Improve code - make the code more modular with parameters to specify which model to use, how may topics, how to clean the data, etc.
+* Include much larger number of news sources.
