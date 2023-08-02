@@ -62,7 +62,7 @@ def get_article_month_year(month, year):
 
     #set url base and end 
     url_base = 'https://api.nytimes.com/svc/archive/v1/'
-    url_end = '.json?api-key=X4hi44ftAA1fmfGpOI6rJhLAGHSG4zOm'
+    url_end = '.json?api-key=[API KEY]'
     url = str(url_base + str(year) + '/' + str(month) + url_end)
 
     #get month's archive from nytimes api, and save as json file
